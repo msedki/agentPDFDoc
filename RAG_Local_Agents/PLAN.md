@@ -1,6 +1,21 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, itération I6 sur les relations documentaires en cours ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, complément I6 livré avec réserves ; I7 sur la pertinence des propriétés en cours ; qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-10 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I7 — pertinence de la propriété demandée, 10 novembre 2026 (UTC)
+
+**Objectif :** traiter dans un lot séparé la relation contextuelle hors
+propriété demandée observée au nouveau FINAL I6 F05. Le résultat I6 de
+47/48 reste définitif ; aucune valeur inventée n'est attribuée à cet écart.
+**Référence :** `522d86839d5c803c57daec0e799bfa48ee5aa8e7`.
+**Critères :** [protocole préalable I7](reports/trust-i7-property-protocol-2026-11-10.md), PROP-01 à PROP-08.
+
+| Action | Dépendance, livrable et critère | État / preuve |
+|---|---|---|
+| I7-01 | Diagnostic et protocole séparé, nouveaux jeux annotés avant code | EN COURS ; critères fixés, évaluateur distinct, candidat I6 inchangé |
+| I7-02 | I7-01 ; filtrage des seules relations non demandées, citation intégrale, régressions | À IMPLÉMENTER dans un worktree isolé |
+| I7-03 | I7-02 ; contrôles logiciels, quatre positions natives par bras, nouveau final16 | À EXÉCUTER après la recette native I6, sans concurrence lourde |
+| I7-04 | I7-03 ; revue, bilan, documentation et publication sans force | À LIVRER ; historique I6 et limites de qualification conservés |
 
 ## I6 — exceptions, négations et comparaisons, 9 novembre 2026 (UTC)
 
@@ -23,19 +38,17 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 publié `26a0eb8`, recette `6394f62` ; 5 397 tests portables PASS, DEV 48/48, p95 contrat 70,88 ms. Native v2 : candidat 18/18 réponses, référence 13/18 + cinq erreurs mémoire ; neuf routes R3 sans modèle. D03/D06 non acquis, suppléments séparés, huit arrêts vérifiés. [Bilan et preuves](reports/trust-i6-native-v2-2026-11-09.md) |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable ; aucune ouverture ni reconstitution de score. Bilan du périmètre exécutable livré avec ses réserves |
-| I6R-06 | Après I6R-04 : diagnostics de conflit/propriétés manquantes et portées des métadonnées ; reproductions et nouveau lot séparé | IMPLÉMENTÉ, contrôles finaux en cours : 80 nouveaux tests, dernière série ciblée 152 PASS ; diagnostics, qualificatifs locaux et trace du registre rendu. [Lot de code](reports/trust-i6-diagnostics-code-2026-11-09.md), [protocole](reports/trust-i6-diagnostics-protocol-2026-11-09.md) ; résultats natifs v2 figés |
-| I6R-07 | Évaluation distincte I6R06-F48, régressions natives appariées et HTTP/SSE, bilan et publication | PRÉPARATION : nouveau final annoté par évaluateur distinct avant exécution, conservé hors arbre ; ne remplace pas le FINAL48 historique perdu. Critères DIAG-01 à DIAG-08 dans le protocole |
+| I6R-06 | Diagnostics de conflit/propriétés manquantes, métadonnées locales et trace du rendu | PUBLIÉ `522d868` ; 80 nouveaux tests, 152 ciblés et 5 480 portables PASS, Ruff/Mypy155 PASS. [Code](reports/trust-i6-diagnostics-code-2026-11-09.md), [bilan final](reports/trust-i6-diagnostics-results-2026-11-10.md) ; natif v2 inchangé |
+| I6R-07 | Nouveau I6R06-F48, régressions natives appariées et HTTP/SSE, bilan et publication | EXÉCUTÉ ET LIVRÉ : final 39/48 → 47/48, 68/68 littéraux/citations, écart F05 préexistant transmis à I7 ; R4 20/20 positions techniques, six échanges 4B, dix registres rendus candidat, huit arrêts vérifiés. [Bilan et limites](reports/trust-i6-diagnostics-results-2026-11-10.md) |
 
-**Points vérifiés :** lots de portée, R3 et recette publiés, suite portable,
-DEV48 et coût contractuel conformes ; 44 positions natives/HTTP conservées
-dans leurs groupes avec revue indépendante, arrêts et sources vérifiés.
-**Réserves :** diagnostics publiés, quota 4B original candidat, erreurs mémoire
-de référence et FINAL48 absent ; aucune qualification globale ou physique.
-**Prochaine action :** reproduire et corriger les diagnostics bornés d'I6R-06
-dans un nouveau lot, puis établir une validation distincte sans reclasser
-les résultats figés. Retrouver l'artefact FINAL exact reste nécessaire pour
-I6R-05 ; une nouvelle annotation demanderait son propre protocole.
-Les échecs I5, I5-PJ et I6 v1/v2 restent des résultats historiques.
+**Points vérifiés :** lots de portée, R3 et diagnostics publiés ; suite portable,
+nouveau final indépendant et recette R4 exécutés, preuves complètes liées au bilan.
+**Réserves :** relation contextuelle non demandée F05 au nouveau final, FINAL48
+historique absent et qualifications globales inchangées. Les erreurs, quotas et
+réserves des campagnes I6 v1/v2 restent des observations historiques.
+**Prochaine action :** terminer I7 avec son nouveau final et sa recette propres,
+sans modifier le candidat I6 ni ses résultats. Retrouver l'artefact FINAL exact
+reste nécessaire pour I6R-05 ; aucune reconstitution ne le remplace.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
 

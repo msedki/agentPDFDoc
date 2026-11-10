@@ -1,12 +1,32 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-10 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
 Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit et d'un lien vers sa preuve. Les états intermédiaires, échecs et reprises restent dans le [plan](RAG_Local_Agents/PLAN.md) et le [journal](RAG_Local_Agents/journal/README.md). Ce fichier est distinct du [registre des corrections de la baseline documentaire V2.1](RAG_Local_Agents/CHANGELOG.md).
 
 ## [Non publié]
+
+### I6 — diagnostics et registre rendu, 10 novembre 2026
+
+Commit technique [522d868](https://github.com/msedki/agentPDFDoc/commit/522d86839d5c803c57daec0e799bfa48ee5aa8e7),
+publié sans force sur `enhanced_version` ; [reçu](RAG_Local_Agents/reports/trust-i6-diagnostics-code-publication-2026-11-10.json).
+
+- Les conflits sont présentés sans condition commune supposée ; les propriétés
+  manquantes sont nommées à partir des obligations non couvertes.
+- Les descripteurs de mesures coordonnées restent locaux à leur prédicat ;
+  négation, conditions, preuve et citation intégrales conservent leur portée.
+- Le registre du texte rendu est capturé dans la trace privée après validation,
+  sous les modes de confidentialité et quotas existants. Le SSE public ne porte
+  pas ce contenu privé ; sa publication est vérifiée séparément du rendu.
+- 80 nouvelles régressions ; 5 480 tests portables PASS, Ruff et Mypy155 PASS.
+  Nouveau final 39/48 → 47/48, 68/68 littéraux/citations. Un écart préexistant
+  de pertinence de propriété reste au lot I7 ; aucun score I6 réécrit.
+- Recette R4 : 20 positions techniques conformes, six échanges réels 4B,
+  dix registres candidats et huit arrêts vérifiés. Les anciens FAIL HTTP
+  exigeant un modèle sur la route déterministe sont conservés séparément.
+  [Bilan, revue documentaire et limites](RAG_Local_Agents/reports/trust-i6-diagnostics-results-2026-11-10.md).
 
 ### I5-PJ — appui numérique et conditions exclues, 9 novembre 2026
 

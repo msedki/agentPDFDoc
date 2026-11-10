@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "protocol_id": "I6R06-independent-v1",
+  "created_utc": "2026-11-10T00:07:24.327238+00:00",
+  "baseline_revision": "0574f4e21ccaf95b25a48c6e226369376681ac18",
+  "candidate_revision": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+  "execution": {
+    "repeats_per_case": 1,
+    "order": [
+      "baseline",
+      "candidate"
+    ],
+    "isolated_python_processes": true,
+    "final_fixture_exposed_only_after_root_go": true,
+    "post_opening_changes_to_product_or_oracle": false,
+    "final_is_new_not_historical_reconstruction": true
+  },
+  "identities": {
+    "fixtures_and_evaluator_match_freeze": true,
+    "baseline_measurement_valid": true,
+    "candidate_measurement_valid": true,
+    "candidate_services_match_external_product_freeze": true,
+    "external_freeze_all_142_files_match_after_evaluation": true,
+    "base_source_file_count": 88,
+    "candidate_source_file_count": 88,
+    "changed_product_paths": [
+      "services/api/answer_contract.py",
+      "services/api/query.py",
+      "services/api/structured_answer.py"
+    ],
+    "files": {
+      "i6r06-final48.json": {
+        "sha256": "6f6210d4ce376bee739fbacd45c0de1e3c3a691aac2ca49386dc28fcc2f58412",
+        "bytes": 165874
+      },
+      "i6r06-dev16.json": {
+        "sha256": "858c81ef5ce3f841d1e7a57c1898e7675df622f1ffca2c17badca92168761a5c",
+        "bytes": 56807
+      },
+      "run_i6r06.py": {
+        "sha256": "ed1ddc76931d8059a95957ee5e56dc9db1d05934e211aabc68ab39990bb041ff",
+        "bytes": 9541
+      },
+      "i6r06-freeze.json": {
+        "sha256": "f8f513710c3f4102c4989dcd58dd98d9827aa4083422a34337de3b1f14806a89",
+        "bytes": 2421
+      },
+      "final48-baseline-v1.json": {
+        "sha256": "b11e7791d42a32a71cd591c6f43681b8dc9975679a29ae61de6e0d36fb142582",
+        "bytes": 1502530
+      },
+      "final48-candidate-v1.json": {
+        "sha256": "afeeca5a3c0cc87b0497cd65bbab92266346883a53e9e4ef592142124bcd0534",
+        "bytes": 1512179
+      },
+      "dev16-candidate-final.json": {
+        "sha256": "03f827d1d7b835d8e529b164a041a3712146540cb7298f1d1e36a92df64aad2a",
+        "bytes": 514037
+      }
+    }
+  },
+  "baseline": {
+    "summary": {
+      "cases": 48,
+      "positive_cases": 24,
+      "negative_cases": 24,
+      "false_complete_acceptances": 0,
+      "false_complete_acceptance_rate": 0.0,
+      "positive_status_rejections": 0,
+      "positive_status_rejection_rate": 0.0,
+      "positive_fully_correct": 23,
+      "positive_fully_correct_rate": 0.9583333333333334,
+      "cases_passed": 39,
+      "cases_with_forbidden_operands": 0,
+      "cases_with_unexpected_relations": 1,
+      "cases_with_forbidden_conclusions": 0,
+      "unassessed_cases": 0,
+      "primary_errors": 0,
+      "cases_with_any_error": 0,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_forbidden_operand_cases": 0,
+      "any_repeat_unexpected_relation_cases": 1,
+      "any_repeat_forbidden_conclusion_cases": 0,
+      "variable_outcomes": 0,
+      "all_repeats_passed_cases": 39,
+      "statuses": {
+        "covered": 24,
+        "partial": 20,
+        "conflict": 4
+      },
+      "required_literal_total": 68,
+      "required_literal_texts_retained": 68,
+      "required_literal_citations_retained": 68,
+      "latency_ms_median": 34.810030499999996,
+      "latency_ms_p95_nearest_rank": 75.727703,
+      "latency_ms_max": 107.885103,
+      "repeats_are_not_independent_cases": true
+    },
+    "extra_summary": {
+      "base_oracle_passed": 47,
+      "diagnostic_target_cases": 6,
+      "diagnostic_failures": 6,
+      "metadata_target_cases": 7,
+      "metadata_failures": 2,
+      "ledger_failures": 0,
+      "failed_case_ids": [
+        "I6R06F03",
+        "I6R06F04",
+        "I6R06F05",
+        "I6R06F11",
+        "I6R06F12",
+        "I6R06F15",
+        "I6R06F16",
+        "I6R06F19",
+        "I6R06F20"
+      ],
+      "languages": {
+        "fr": 24,
+        "en": 24
+      }
+    }
+  },
+  "candidate": {
+    "summary": {
+      "cases": 48,
+      "positive_cases": 24,
+      "negative_cases": 24,
+      "false_complete_acceptances": 0,
+      "false_complete_acceptance_rate": 0.0,
+      "positive_status_rejections": 0,
+      "positive_status_rejection_rate": 0.0,
+      "positive_fully_correct": 23,
+      "positive_fully_correct_rate": 0.9583333333333334,
+      "cases_passed": 47,
+      "cases_with_forbidden_operands": 0,
+      "cases_with_unexpected_relations": 1,
+      "cases_with_forbidden_conclusions": 0,
+      "unassessed_cases": 0,
+      "primary_errors": 0,
+      "cases_with_any_error": 0,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_forbidden_operand_cases": 0,
+      "any_repeat_unexpected_relation_cases": 1,
+      "any_repeat_forbidden_conclusion_cases": 0,
+      "variable_outcomes": 0,
+      "all_repeats_passed_cases": 47,
+      "statuses": {
+        "covered": 24,
+        "partial": 20,
+        "conflict": 4
+      },
+      "required_literal_total": 68,
+      "required_literal_texts_retained": 68,
+      "required_literal_citations_retained": 68,
+      "latency_ms_median": 31.622489,
+      "latency_ms_p95_nearest_rank": 69.354253,
+      "latency_ms_max": 85.870983,
+      "repeats_are_not_independent_cases": true
+    },
+    "extra_summary": {
+      "base_oracle_passed": 47,
+      "diagnostic_target_cases": 6,
+      "diagnostic_failures": 0,
+      "metadata_target_cases": 7,
+      "metadata_failures": 0,
+      "ledger_failures": 0,
+      "failed_case_ids": [
+        "I6R06F05"
+      ],
+      "languages": {
+        "fr": 24,
+        "en": 24
+      }
+    }
+  },
+  "development_final": {
+    "summary": {
+      "cases": 16,
+      "positive_cases": 8,
+      "negative_cases": 8,
+      "false_complete_acceptances": 0,
+      "false_complete_acceptance_rate": 0.0,
+      "positive_status_rejections": 0,
+      "positive_status_rejection_rate": 0.0,
+      "positive_fully_correct": 8,
+      "positive_fully_correct_rate": 1.0,
+      "cases_passed": 16,
+      "cases_with_forbidden_operands": 0,
+      "cases_with_unexpected_relations": 0,
+      "cases_with_forbidden_conclusions": 0,
+      "unassessed_cases": 0,
+      "primary_errors": 0,
+      "cases_with_any_error": 0,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_forbidden_operand_cases": 0,
+      "any_repeat_unexpected_relation_cases": 0,
+      "any_repeat_forbidden_conclusion_cases": 0,
+      "variable_outcomes": 0,
+      "all_repeats_passed_cases": 16,
+      "statuses": {
+        "covered": 8,
+        "conflict": 2,
+        "partial": 6
+      },
+      "required_literal_total": 24,
+      "required_literal_texts_retained": 24,
+      "required_literal_citations_retained": 24,
+      "latency_ms_median": 29.4225575,
+      "latency_ms_p95_nearest_rank": 57.063496,
+      "latency_ms_max": 57.063496,
+      "repeats_are_not_independent_cases": true
+    },
+    "extra_summary": {
+      "base_oracle_passed": 16,
+      "diagnostic_target_cases": 4,
+      "diagnostic_failures": 0,
+      "metadata_target_cases": 4,
+      "metadata_failures": 0,
+      "ledger_failures": 0,
+      "failed_case_ids": [],
+      "languages": {
+        "fr": 8,
+        "en": 8
+      }
+    },
+    "preliminary_dev_is_not_added_to_denominator": true
+  },
+  "group_comparison": [
+    {
+      "group": "condition_absent_conflict",
+      "cases": 4,
+      "baseline_passed": 2,
+      "candidate_passed": 4
+    },
+    {
+      "group": "condition_explicit_conflict",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "exception_polarity",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "local_negation",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "local_property",
+      "cases": 4,
+      "baseline_passed": 2,
+      "candidate_passed": 4
+    },
+    {
+      "group": "local_role",
+      "cases": 4,
+      "baseline_passed": 3,
+      "candidate_passed": 3
+    },
+    {
+      "group": "nonexact_bound",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "output_missing",
+      "cases": 4,
+      "baseline_passed": 2,
+      "candidate_passed": 4
+    },
+    {
+      "group": "per_document_comparison",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "point_condition",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "subject_comparison",
+      "cases": 4,
+      "baseline_passed": 4,
+      "candidate_passed": 4
+    },
+    {
+      "group": "supply_missing",
+      "cases": 4,
+      "baseline_passed": 2,
+      "candidate_passed": 4
+    }
+  ],
+  "improved_cases": [
+    {
+      "case_id": "I6R06F03",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.",
+      "candidate_diagnostic": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source. Éléments demandés non entièrement établis dans les passages retenus : tension pour MT9203 (rôle nominal).",
+      "baseline_metadata_checks": [
+        {
+          "expected": {
+            "reference_id": "R001",
+            "quantity": "voltage",
+            "values": [
+              "7.31"
+            ],
+            "unit": "V",
+            "property": null,
+            "role": "nominal",
+            "location": "rejected"
+          },
+          "numeric_candidates": 1,
+          "matching_metadata_count": 0,
+          "observed_metadata": [
+            {
+              "property": "output",
+              "properties": [
+                "output"
+              ],
+              "role": "nominal"
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "candidate_metadata_checks": [
+        {
+          "expected": {
+            "reference_id": "R001",
+            "quantity": "voltage",
+            "values": [
+              "7.31"
+            ],
+            "unit": "V",
+            "property": null,
+            "role": "nominal",
+            "location": "rejected"
+          },
+          "numeric_candidates": 1,
+          "matching_metadata_count": 1,
+          "observed_metadata": [
+            {
+              "property": null,
+              "properties": [],
+              "role": "nominal"
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "I6R06F04",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.",
+      "candidate_diagnostic": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source. Éléments demandés non entièrement établis dans les passages retenus : courant de sortie pour MT9204.",
+      "baseline_metadata_checks": [
+        {
+          "expected": {
+            "reference_id": "R001",
+            "quantity": "current",
+            "values": [
+              "47.9"
+            ],
+            "unit": "mA",
+            "property": "output",
+            "role": null,
+            "location": "rejected"
+          },
+          "numeric_candidates": 1,
+          "matching_metadata_count": 0,
+          "observed_metadata": [
+            {
+              "property": "output",
+              "properties": [
+                "output"
+              ],
+              "role": "nominal"
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "candidate_metadata_checks": [
+        {
+          "expected": {
+            "reference_id": "R001",
+            "quantity": "current",
+            "values": [
+              "47.9"
+            ],
+            "unit": "mA",
+            "property": "output",
+            "role": null,
+            "location": "rejected"
+          },
+          "numeric_candidates": 1,
+          "matching_metadata_count": 1,
+          "observed_metadata": [
+            {
+              "property": "output",
+              "properties": [
+                "output"
+              ],
+              "role": null
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "I6R06F11",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.",
+      "candidate_diagnostic": "Les propriétés demandées ne sont pas toutes établies. Éléments demandés non entièrement établis dans les passages retenus : plage de tension d'alimentation pour MT9211.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    },
+    {
+      "case_id": "I6R06F12",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.",
+      "candidate_diagnostic": "Les propriétés demandées ne sont pas toutes établies. Éléments demandés non entièrement établis dans les passages retenus : plage de tension d'alimentation pour MT9212.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    },
+    {
+      "case_id": "I6R06F15",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.",
+      "candidate_diagnostic": "Les propriétés demandées ne sont pas toutes établies. Éléments demandés non entièrement établis dans les passages retenus : plage de tension de sortie pour MT9215.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    },
+    {
+      "case_id": "I6R06F16",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.",
+      "candidate_diagnostic": "Les propriétés demandées ne sont pas toutes établies. Éléments demandés non entièrement établis dans les passages retenus : plage de tension de sortie pour MT9216.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    },
+    {
+      "case_id": "I6R06F19",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+      "candidate_diagnostic": "Les extraits retenus présentent des valeurs concurrentes. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    },
+    {
+      "case_id": "I6R06F20",
+      "baseline_passed": false,
+      "candidate_passed": true,
+      "baseline_diagnostic": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+      "candidate_diagnostic": "Les extraits retenus présentent des valeurs concurrentes. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+      "baseline_metadata_checks": [],
+      "candidate_metadata_checks": []
+    }
+  ],
+  "regressed_case_ids": [],
+  "remaining_failures": [
+    {
+      "id": "I6R06F05",
+      "classification": "preexisting_closed_relation_set_failure",
+      "question": "Quelle est la tension d'entrée de MT9205 ?",
+      "source": "La tension d'entrée de MT9205 est de 5,83 V ; la tension maximale de sortie de MT9205 est de 11,92 V.",
+      "published_text": "I6R06F05-document-A — Extrait : « La tension d'entrée de MT9205 est de 5,83 V ; la tension maximale de sortie de MT9205 est de 11,92 V. » [S001]",
+      "requested_input_relation_correct": true,
+      "extra_relation": {
+        "reference_id": "R001",
+        "reference_ids": [
+          "R001"
+        ],
+        "document_id": "I6R06F05-document-A",
+        "source_ids": [
+          "S001"
+        ],
+        "version_id": null,
+        "generation_id": null,
+        "extraction_revision_id": null,
+        "subjects": [
+          "MT9205"
+        ],
+        "evidence_identifiers": [
+          "mt9205"
+        ],
+        "entity_context_identifiers": [
+          "mt9205"
+        ],
+        "kind": "value",
+        "quantity": "voltage",
+        "property": "output",
+        "properties": [
+          "output"
+        ],
+        "role": null,
+        "guarantee": null,
+        "values": [
+          "11.92"
+        ],
+        "unit": "V",
+        "label": "la tension maximale de sortie de mt9205 est de",
+        "condition": "",
+        "quote": "La tension d'entrée de MT9205 est de 5,83 V ; la tension maximale de sortie de MT9205 est de 11,92 V.",
+        "assertion_status": "asserted",
+        "bound_role": "maximum",
+        "note_issues": [],
+        "list_binding": null,
+        "dependency_spans": {},
+        "segments": [],
+        "value_text": "11,92 V",
+        "code": null,
+        "decimal_notation_verified": false,
+        "source_start": 0,
+        "source_end": 101,
+        "supply_configuration": null,
+        "polarity": null,
+        "source_quality": null
+      },
+      "literal_citation_preserved": true,
+      "no_invented_numeric_value_observed": true,
+      "explanation": "The frozen oracle permits only the requested input relation. Both revisions additionally retain the explicitly printed maximum output relation in matched_relations. It remains a strict failure; the observation is not a fabricated value, wrong input value, or proven false statement in the quoted answer. Clarify the intended scope of matched_relations in a future separately evaluated change."
+    }
+  ],
+  "limits": [
+    "Synthetic annotated engineering sample; no expert human annotation or business-corpus qualification.",
+    "Source instances and document families disjoint; grammatical categories intentionally overlap development.",
+    "Selection and character token counting are explicit doubles.",
+    "No extraction, retrieval, embeddings, Qdrant, OCR, 4B inference, HTTP or native-resource qualification.",
+    "One sequential observation per revision and case; latency delta is descriptive, not a statistical causal estimate.",
+    "The historical FINAL48 remains missing; this is a distinct frozen evaluation."
+  ]
+}

@@ -1,0 +1,652 @@
+{
+  "schema_version": 1,
+  "scope": "Pre-publication documentation verification; does not add native or product qualification",
+  "created_utc": "2026-11-10T00:34:31.488272+00:00",
+  "base_commit": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+  "documentation_tests": {
+    "passed": 62,
+    "seconds": 2.26,
+    "command": "PYTHONPATH=. /workspace/scratch/2967c8ebdcb2/agentPDFDoc/.venv/bin/python -m pytest tests/unit/test_docs_space.py tests/unit/test_docs_tooling.py -q --basetemp=/workspace/scratch/edbeb2c37c03/qa/release-i6/docs-tests-tmp --junitxml=/workspace/scratch/edbeb2c37c03/qa/release-i6/docs-tests.xml",
+    "log": "..............................................................           [100%]\n62 passed in 2.26s\n",
+    "junit_sha256": "4a66448cc19ca8d363c991ce18c246bf90e5fac724395c5f7457b8a2f8bd435d"
+  },
+  "document_space": {
+    "utc": "2026-11-10T00:27:54+00:00",
+    "root": "/workspace/scratch/edbeb2c37c03/agentPDFDoc",
+    "status": "PASS",
+    "checks": [
+      {
+        "id": "links",
+        "status": "PASS",
+        "detail": {
+          "relative_links_checked": 1628,
+          "warnings": [],
+          "external_urls_fetched": false
+        }
+      },
+      {
+        "id": "headers",
+        "status": "PASS",
+        "detail": {
+          "documents": 8,
+          "statuses": {
+            "docs/README.md": "stabilise",
+            "docs/architecture/ARCHITECTURE.md": "stabilise",
+            "docs/deploiement/DEPLOIEMENT.md": "stabilise",
+            "docs/exploitation/DEPANNAGE.md": "stabilise",
+            "docs/exploitation/EXPLOITATION.md": "stabilise",
+            "docs/exploitation/SAUVEGARDE-RESTAURATION.md": "stabilise",
+            "docs/interfaces/API.md": "stabilise",
+            "docs/specifications/SPECIFICATIONS.md": "stabilise"
+          }
+        }
+      },
+      {
+        "id": "index",
+        "status": "PASS",
+        "detail": {
+          "indexed_documents": 7
+        }
+      },
+      {
+        "id": "ascii_art",
+        "status": "PASS",
+        "detail": {
+          "code_blocks_checked": 48
+        }
+      },
+      {
+        "id": "images",
+        "status": "PASS",
+        "detail": {
+          "svg_checked": 5,
+          "display_width_px": 880,
+          "min_display_font_px": 11.0
+        }
+      },
+      {
+        "id": "versions",
+        "status": "PASS",
+        "detail": {
+          "version": "0.1.0",
+          "released_sections": [],
+          "warnings": []
+        }
+      },
+      {
+        "id": "entry_point",
+        "status": "PASS",
+        "detail": {
+          "entry_links": [
+            "docs/README.md",
+            "CHANGELOG.md"
+          ]
+        }
+      }
+    ],
+    "network": "none"
+  },
+  "pack": {
+    "pack": "RAG-LOCAL-16-v2.1",
+    "checked_at_utc": "2026-11-10T00:27:55.223766+00:00",
+    "overall_status": "PASS",
+    "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
+    "python_version": "3.12.14",
+    "pyyaml_version": "6.0.3",
+    "results": [
+      {
+        "id": "markdown_links",
+        "status": "PASS",
+        "detail": {
+          "local_links_checked": 2615,
+          "links_to_project_outside_pack": 358,
+          "git_ignore_check": "PASS",
+          "external_urls_fetched": false
+        }
+      },
+      {
+        "id": "syntax",
+        "status": "PASS",
+        "detail": {
+          "configuration_files": [
+            "app.env",
+            "lexical.sql",
+            "local16-4b.yaml",
+            "local16.yaml",
+            "next.config.mjs",
+            "ollama.chat.smoke.json",
+            "ollama.env",
+            "qdrant.collection.json",
+            "qdrant.yaml"
+          ],
+          "native_runtime_schema_tested": false
+        }
+      },
+      {
+        "id": "configuration_consistency",
+        "status": "PASS",
+        "detail": {
+          "embedding_dimensions": 384,
+          "max_declared_tokens_with_output": 8192,
+          "parameters_are_unqualified_design_targets": true
+        }
+      },
+      {
+        "id": "runtime_profile_copy",
+        "status": "PASS",
+        "detail": {
+          "runtime_profile": "config/local16.yaml",
+          "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
+          "sha256": "6d51003d32df8c4d765ee31d58fad98dd4216911f2e78f4ccf2f4b787e05c212",
+          "byte_identical": true,
+          "additional_profiles": {
+            "local16-4b.yaml": {
+              "runtime": "config/local16-4b.yaml",
+              "documentary_copy": "RAG_Local_Agents/config/local16-4b.yaml",
+              "sha256": "7f8743656a250a0a3d1d487b9d97b5e7b73f8b4a1edcf0db4b7c496a0b5e49da",
+              "byte_identical": true
+            }
+          },
+          "collection_config": {
+            "runtime": "config/qdrant.collection.json",
+            "documentary_copy": "RAG_Local_Agents/config/qdrant.collection.json",
+            "sha256": "210b83977a299c506549c61c09e5a40816febefcaf06f59f6368913840e6133d",
+            "byte_identical": true
+          }
+        }
+      },
+      {
+        "id": "sqlite_fts5_reference",
+        "status": "PASS",
+        "detail": {
+          "sqlite_version": "3.53.1",
+          "checked": [
+            "create",
+            "insert",
+            "scope-filter",
+            "update",
+            "delete"
+          ],
+          "full_app_schema_tested": false
+        }
+      },
+      {
+        "id": "skill_format",
+        "status": "PASS",
+        "detail": {
+          "skills": [
+            "local-cpu-qualification",
+            "official-source-review",
+            "pdf-workspace-e2e",
+            "rag-pdf-provenance",
+            "rag-retrieval-evaluation"
+          ],
+          "syntax_and_links_only": true,
+          "native_client_discovery_tested": false
+        }
+      },
+      {
+        "id": "agents_skill_format",
+        "status": "PASS",
+        "detail": {
+          "skills": [
+            "agent-introspection-debugging",
+            "backend-patterns",
+            "embedding-comparison-windows",
+            "frontend-design",
+            "frontend-skill",
+            "hybrid-rag-api",
+            "linux-offline-kit",
+            "linux-rag-runtime",
+            "local-llm-qualification",
+            "office-document-ingestion",
+            "pdf-ingestion-windows",
+            "pdf-workspace-web",
+            "project-documentation",
+            "rag-qualification-fixtures",
+            "tesseract-lstm-extension",
+            "windows-rag-runtime"
+          ],
+          "warnings": [
+            "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+            "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+            "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+            "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+            "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+            "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+            "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+          ],
+          "syntax_and_links_only": true,
+          "native_client_discovery_tested": false
+        }
+      },
+      {
+        "id": "skills_registry",
+        "status": "PASS",
+        "detail": {
+          "pack": [
+            "local-cpu-qualification",
+            "official-source-review",
+            "pdf-workspace-e2e",
+            "rag-pdf-provenance",
+            "rag-retrieval-evaluation"
+          ],
+          "project": [
+            "embedding-comparison-windows",
+            "hybrid-rag-api",
+            "linux-offline-kit",
+            "linux-rag-runtime",
+            "local-llm-qualification",
+            "office-document-ingestion",
+            "pdf-ingestion-windows",
+            "pdf-workspace-web",
+            "project-documentation",
+            "rag-qualification-fixtures",
+            "tesseract-lstm-extension",
+            "windows-rag-runtime"
+          ],
+          "third_party": [
+            "SKILL.md",
+            "golang-general-backend-security.md",
+            "javascript-express-web-server-security.md",
+            "javascript-general-web-frontend-security.md",
+            "javascript-jquery-web-frontend-security.md",
+            "javascript-typescript-nextjs-web-server-security.md",
+            "javascript-typescript-react-web-frontend-security.md",
+            "javascript-typescript-vue-web-frontend-security.md",
+            "openai.yaml",
+            "python-django-web-server-security.md",
+            "python-fastapi-web-server-security.md",
+            "python-flask-web-server-security.md",
+            "agent-introspection-debugging",
+            "backend-patterns",
+            "frontend-design",
+            "frontend-skill"
+          ],
+          "sha256_checked": 33,
+          "behavior_tested": false
+        }
+      },
+      {
+        "id": "policy_propagation",
+        "status": "PASS",
+        "detail": {
+          "policy_in_primary_instructions": true,
+          "source_and_skill_acceptance": "D11"
+        }
+      },
+      {
+        "id": "deterministic_examples",
+        "status": "PASS",
+        "detail": {
+          "rrf_counterexample": {
+            "exact_score": 0.01639344262295082,
+            "top6_without_exact": [
+              "near1",
+              "near2",
+              "near3",
+              "near4",
+              "near5",
+              "near6"
+            ],
+            "illustrative_selection": [
+              "exact",
+              "near1",
+              "near2",
+              "near3",
+              "near4",
+              "near5"
+            ]
+          },
+          "unicode_roundtrip": true,
+          "dense_25000x384_float32_bytes": 38400000,
+          "wilson_27_of_30_95pct": [
+            0.7437891742081593,
+            0.9654001112526658
+          ],
+          "not_a_test_of_future_application": true
+        }
+      },
+      {
+        "id": "consolidated_brief",
+        "status": "PASS",
+        "detail": {
+          "output": "RAG_LOCAL_BRIEF_COMPLET.md",
+          "canonical_docs_and_configs_included": true
+        }
+      }
+    ],
+    "warnings": [
+      "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+      "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+      "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+      "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+      "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+      "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+      "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+    ],
+    "not_executed": [
+      "LLM inference",
+      "Docling or OCR",
+      "Qdrant server/API",
+      "Frontend or browser E2E",
+      "16 GB target qualification",
+      "Native skill installation/discovery/invocation",
+      "External source link accessibility in this offline script"
+    ]
+  },
+  "brief_synchronized": true,
+  "five_diagrams_synchronized": true,
+  "git_diff_check": "PASS after removal of three Markdown hard-break trailing spaces in the formatted review copy",
+  "review": {
+    "schema_version": 1,
+    "reviewed_utc": "2026-11-10T00:33:17.924504+00:00",
+    "reviewer": "/root/audit_remaining; co-author of I6 diagnostic rendering and I7 property filter",
+    "scope": "Read-only release-document coherence and evidence traceability review; not a general independent product/semantic audit.",
+    "repository": "/workspace/scratch/edbeb2c37c03/agentPDFDoc",
+    "head": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+    "verdict": "PASS_WITH_DECLARED_LIMITS",
+    "blocking_findings": [],
+    "nonblocking_findings": [],
+    "reviewed_staged_file_count": 21,
+    "reviewed_files": [
+      {
+        "path": "CHANGELOG.md",
+        "sha256": "066ceb0054d59c320d0e1e3b9563bc29c06e66ed13b24382c463ca189ab7dcf2"
+      },
+      {
+        "path": "RAG_Local_Agents/CHANGELOG.md",
+        "sha256": "c8ca56cf5e79c33c1a230d71203cf16b46540c9fc715a7f85b391697f8c8df8e"
+      },
+      {
+        "path": "RAG_Local_Agents/DECISIONS.md",
+        "sha256": "1c82bc6653b9e16cefb5ec39d92d99118da362cdf6ee8b057c65f49986ccb77d"
+      },
+      {
+        "path": "RAG_Local_Agents/PLAN.md",
+        "sha256": "e9dbb2ddce4c0794e891503682355f1c93043afd186b6856ec71a12af8818c9c"
+      },
+      {
+        "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+        "sha256": "6f5d33198c2a498ea5c82bb1b3170fcabf685679144e1bfc4e5165de201986d2"
+      },
+      {
+        "path": "RAG_Local_Agents/SOURCES.md",
+        "sha256": "15645c6ca87ebb581cbb605fcec0a1b6e54c28e48ad306eec18059eb31ba1111"
+      },
+      {
+        "path": "RAG_Local_Agents/journal/2026-11-10.md",
+        "sha256": "8796420724699690477aadc81dbb7cb979a2c54d112c67c7c5619f24f4c4e57d"
+      },
+      {
+        "path": "RAG_Local_Agents/journal/README.md",
+        "sha256": "2d34de9b3388c79259aec620e1bc43ec0d3a5256aa6612a2a2b406f74b79678d"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-code-publication-2026-11-10.json",
+        "sha256": "944b3a8eeef55e37662af3ab18198a2752ae7ec49490ed40549047d6eb86b512"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-collection-2026-11-10.json",
+        "sha256": "bebf2fed251f7da570761a1e3272bc23e2d73c05c3c25cbea9cbe5a9bdd37a20"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-documentary-2026-11-10.json",
+        "sha256": "0319f8015795eb511746e25edcda01d04568d32850c771aa27896199649af620"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-documentary-2026-11-10.md",
+        "sha256": "f4a951056917966e9856e95ed5787494da9c619d879b153f0b87e504d9fc192c"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-evidence-2026-11-10.json.gz",
+        "sha256": "0339ade3b28b6209a550a786186f62a14ce21ae3aea1708945159005d93605e4"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-final-2026-11-10.json",
+        "sha256": "2c130262b31400ed3c249630dda4bb8fa82f29c6b696812b175346b518cf2c1d"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-final-2026-11-10.md",
+        "sha256": "eaae210cb89f932133b169c6722a1d93bf765393d1ceeb4fba803e519511a30f"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-native-2026-11-10.json",
+        "sha256": "28722924805faa4d10d992ca217319a985540d5b450dd2afebb4eafc52993c00"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-native-2026-11-10.md",
+        "sha256": "fe2e6511e78c8d5a1088ccf681ef7501199cd31128e4d8ae787c50ea683805e2"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i6-diagnostics-results-2026-11-10.md",
+        "sha256": "391e5c87667035e1f5f009b91fb0118cc9c37a13c4ca83e9023a66f1b3b0e419"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i7-property-protocol-2026-11-10.md",
+        "sha256": "ea765c94bbc138afd5afe9755e4c8856329ea26393d9e0fb6c99d4601690ba61"
+      },
+      {
+        "path": "RAG_Local_Agents/reports/trust-i7-property-protocol-freeze-2026-11-10.json",
+        "sha256": "a7517f0f8178cc8fb80cf908cc5fab1a8af745bff5ad42d89815a956279781d6"
+      },
+      {
+        "path": "README.md",
+        "sha256": "44cf1f21a8b94fda7ddfa136a3c476e53ac96f2edf7dd6e9eb64322f9ceb3f5a"
+      }
+    ],
+    "final_recomputed": {
+      "baseline": {
+        "cases": 48,
+        "passed": 39,
+        "positive_passed": 23,
+        "negative_passed": 16,
+        "required_literals": 68,
+        "retained_literals": 68,
+        "cited_literals": 68,
+        "forbidden_operands": 0,
+        "forbidden_conclusions": 0,
+        "extra_relation_cases": 1,
+        "failed_ids": [
+          "I6R06F03",
+          "I6R06F04",
+          "I6R06F05",
+          "I6R06F11",
+          "I6R06F12",
+          "I6R06F15",
+          "I6R06F16",
+          "I6R06F19",
+          "I6R06F20"
+        ],
+        "revision": "0574f4e21ccaf95b25a48c6e226369376681ac18",
+        "fixture_sha256": "6f6210d4ce376bee739fbacd45c0de1e3c3a691aac2ca49386dc28fcc2f58412"
+      },
+      "candidate": {
+        "cases": 48,
+        "passed": 47,
+        "positive_passed": 23,
+        "negative_passed": 24,
+        "required_literals": 68,
+        "retained_literals": 68,
+        "cited_literals": 68,
+        "forbidden_operands": 0,
+        "forbidden_conclusions": 0,
+        "extra_relation_cases": 1,
+        "failed_ids": [
+          "I6R06F05"
+        ],
+        "revision": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+        "fixture_sha256": "6f6210d4ce376bee739fbacd45c0de1e3c3a691aac2ca49386dc28fcc2f58412"
+      }
+    },
+    "native_documentary_recomputed": {
+      "baseline": {
+        "positions": 10,
+        "strict_passed": 3,
+        "text_and_diagnostic_passed": 5,
+        "metadata_passed": 8,
+        "asserted_numeric_relations": 16,
+        "literal_checks": 18,
+        "citation_positions": 10,
+        "text_hashes_match_technical": true
+      },
+      "candidate": {
+        "positions": 10,
+        "strict_passed": 10,
+        "text_and_diagnostic_passed": 10,
+        "metadata_passed": 10,
+        "asserted_numeric_relations": 16,
+        "literal_checks": 18,
+        "citation_positions": 10,
+        "text_hashes_match_technical": true
+      }
+    },
+    "native_technical_recomputed": {
+      "positions": 20,
+      "passed": 20,
+      "positions_by_arm": {
+        "baseline": 10,
+        "candidate": 10
+      },
+      "received_done": 6,
+      "requests": 6,
+      "candidate_rendered_ledgers": 10,
+      "blocks": 8,
+      "cleanup_receipts": 24,
+      "historical_http_failures_preserved": 2
+    },
+    "software": {
+      "portable_junit": {
+        "tests": 5505,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 25
+      },
+      "passed": 5480,
+      "deselected_from_log": 48,
+      "duration_seconds_from_log": 322.26,
+      "ruff_log": "All checks passed!",
+      "mypy_log": "Success: no issues found in 155 source files",
+      "new_tests": {
+        "local_qualifiers": 41,
+        "diagnostics": 28,
+        "rendered_trace": 11,
+        "total": 80
+      },
+      "targeted_final": 152,
+      "denominator_note": "Targeted tests overlap the portable suite; no sum of independent cases is claimed. I7 31-test results are not included in I6."
+    },
+    "chronology": {
+      "final_fixture_frozen": "2026-11-09T23:47:21.991435+00:00",
+      "native_plan_prepared": "2026-11-09T23:53:18.258101+00:00",
+      "portable_started": "2026-11-09T23:58:53.623568+00:00",
+      "portable_completed": "2026-11-10T00:04:20.236762+00:00",
+      "candidate_frozen": "2026-11-10T00:04:57.740559+00:00",
+      "final_reference_measured": "2026-11-10T00:05:33.273066+00:00",
+      "final_candidate_measured": "2026-11-10T00:05:46.038106+00:00",
+      "first_native_block_started": "2026-11-10T00:08:09.257417+00:00",
+      "documentary_criteria_recorded": "2026-11-10T00:09:18.943768+00:00",
+      "last_native_block_completed": "2026-11-10T00:20:13.265604+00:00",
+      "documentary_review_completed": "2026-11-10T00:22:37.015224+00:00",
+      "interpretation": "The R4 execution plan predates execution. Documentary review criteria were recorded after the first launch; the documentation claims before reading the responses, not before running the campaign. That distinction is preserved; absence of earlier reading is an evaluator declaration, not inferred from timestamps alone."
+    },
+    "export": {
+      "archive_sha256": "0339ade3b28b6209a550a786186f62a14ce21ae3aea1708945159005d93605e4",
+      "archive_sha256_matches_collection": true,
+      "archive_bytes": 2415499,
+      "files": 372,
+      "native_allowlist_files": 341,
+      "additional_files": 31,
+      "source_bytes": 14283835,
+      "content_or_index_mismatches": [],
+      "original_path_mismatches": [],
+      "prohibited_path_candidates": [],
+      "strong_secret_pattern_flags": [],
+      "credential_key_flags": [],
+      "binary_source_files": {
+        ".docx": 25,
+        ".pdf": 6
+      },
+      "i7_artifacts_archived": [],
+      "json_copies": [
+        {
+          "published_copy": "trust-i6-diagnostics-native-2026-11-10.json",
+          "qa_original": "native-r4/technical-aggregate.json",
+          "identical": true
+        },
+        {
+          "published_copy": "trust-i6-diagnostics-documentary-2026-11-10.json",
+          "qa_original": "independent/native-r4-documentary-review.json",
+          "identical": true
+        },
+        {
+          "published_copy": "trust-i6-diagnostics-final-2026-11-10.json",
+          "qa_original": "independent/i6r06-final-comparison.json",
+          "identical": true
+        },
+        {
+          "published_copy": "trust-i6-diagnostics-code-publication-2026-11-10.json",
+          "qa_original": "code-publication-receipt.json",
+          "identical": true
+        }
+      ],
+      "published_native_markdown_formatting": [
+        {
+          "published_copy": "trust-i6-diagnostics-native-2026-11-10.md",
+          "only_metadata_and_whitespace_changed": true
+        },
+        {
+          "published_copy": "trust-i6-diagnostics-documentary-2026-11-10.md",
+          "only_metadata_and_whitespace_changed": true
+        }
+      ],
+      "note": "372 pieces = 341 native allowlisted entries + 31 complements. Separately, 31 base64 originals are 25 DOCX and 6 PDF. Neither number is a test denominator. No model weight, database, HOME, service log or credential signal was found in this bounded inventory/content review."
+    },
+    "immutability": {
+      "frozen_product_files_checked": 142,
+      "changed_files": [],
+      "runtime_receipt_file_count": 55,
+      "runtime_rehashed_by_this_review": false,
+      "raw_qa_markdown_and_json_unchanged": true,
+      "git_diff_cached_check": 0
+    },
+    "local_markdown_links": {
+      "added_links_checked": 46,
+      "missing_targets": []
+    },
+    "separation_and_qualifications": [
+      "I6 final remains 47/48; F05 is a pre-existing extra contextual relation, not an invented number or wrong input voltage.",
+      "R4 documentary, technical and model execution measures remain separate; six received_done exchanges across both arms, three per arm.",
+      "Historical HTTP harness FAIL on deterministic conflict is preserved alongside the separate R4 technical/documentary PASS.",
+      "Historical missing FINAL48, previous errors/quotas and Windows/aarch64/new installation/physical 16GB/OCR/business corpus limitations remain open.",
+      "Published I7 protocol and its freeze are separate planning artifacts, not I6 product or results; I7 final and its constructor were not opened."
+    ],
+    "limits": [
+      "No tests, application servers, models or native extraction were executed during this review.",
+      "Recomputed reported outcomes from recorded per-case/per-position data; did not redo independent semantic annotations.",
+      "Co-authorship of the I6 diagnostics prevents claiming general reviewer independence.",
+      "Credential checks cover explicit inventory paths, strong credential patterns and credential-like JSON keys; this is not a full security certification.",
+      "Only qa/release-i6/review.json written by this review; source, docs, index and I7 worktree untouched."
+    ]
+  },
+  "review_sha256": "4e92d7a33c405d83d6c63e518d6446e04ddf04b89ce6a7ab4fc9b57227a9f2aa",
+  "export_inspection": {
+    "scope": "Explicit native R4 allowlist only; no recursive storage export",
+    "file_count": 341,
+    "recognizable_secret_pattern_hits": [],
+    "nonempty_sensitive_key_fields": [],
+    "allowlist_sha256": "6e120b37612d422ff7c4e6bfd0ebb21baa3c7c0d2500bf79f8629808f6770e22"
+  },
+  "archive_sha256": "0339ade3b28b6209a550a786186f62a14ce21ae3aea1708945159005d93605e4",
+  "native_source_end_state_sha256": "6cac6f56daddde50e35b524c125cdcc15499de311169302e40090ab9f5f058ac"
+}

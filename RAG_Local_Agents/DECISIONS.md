@@ -2751,3 +2751,18 @@ Source : [bilan figé et preuves](reports/trust-i6-native-v2-2026-11-09.md).
 Les constats natifs v2 restent historiques. Le diagnostic de conflit n'affirme pas de condition commune non établie. Les obligations manquantes sont nommées depuis le contrat, avec des libellés contrôlés et le contexte documentaire utile. La portée lexicale des qualificatifs est distincte de la portée de preuve : une négation dominante continue de rendre la relation inadmissible. Le registre rendu est conservé après validation dans la trace privée, sous les mêmes modes et quotas.
 
 Le nouveau I6R06-F48 est annoté et gelé par un évaluateur distinct ; il ne remplace pas le FINAL48 perdu. Les auteurs n'y accèdent qu'après gel du candidat, sans modification après ouverture. Le modèle, les budgets, la base, les scopes et les citations restent inchangés. Référence du lot : [protocole, critères et limites](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
+
+## I6R-06 — bilan figé et nouveau lot de pertinence I7
+
+**Date :** 10 novembre 2026 UTC. **Statut :** décision appliquée. **Référence :** `522d868`.
+
+Le nouveau final I6R06 conserve 47/48, contre 39/48 sur sa référence, avec
+68/68 littéraux/citations et sans régression stricte. F05 reste un échec de
+pertinence d'une relation contextuelle réellement citée, pas une valeur
+inventée. Le code et l'oracle I6 ne sont pas modifiés après ouverture.
+Le correctif de ce défaut relève du protocole I7, avec un nouveau jeu réservé
+et des preuves distinctes. Les limites du corpus historique et de diffusion
+restent ouvertes ; la recette R4 ne requalifie pas les campagnes antérieures.
+
+Source : [bilan I6R-06](reports/trust-i6-diagnostics-results-2026-11-10.md) et
+[protocole I7](reports/trust-i7-property-protocol-2026-11-10.md).

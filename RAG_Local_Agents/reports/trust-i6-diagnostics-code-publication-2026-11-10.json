@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "sha": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+  "tree": "b23135aec48369c2a05e29aaf17f0eae15483baf",
+  "parent": "0574f4e21ccaf95b25a48c6e226369376681ac18",
+  "local_commit": "b4a907a06420a628feda533806aa43cb0f445845",
+  "author": {
+    "name": "msedki",
+    "email": "57775584+msedki@users.noreply.github.com",
+    "date": "2026-11-10T00:01:54Z"
+  },
+  "committer": {
+    "name": "msedki",
+    "email": "57775584+msedki@users.noreply.github.com",
+    "date": "2026-11-10T00:01:54Z"
+  },
+  "branch": "enhanced_version",
+  "repository": "msedki/agentPDFDoc",
+  "force": false,
+  "each_blob_verified": true,
+  "tree_equal": true,
+  "branch_readback_verified": true,
+  "local_identity": {
+    "name": "MOHAMED SEDKI",
+    "email": "mohamed.sedki@live.fr"
+  },
+  "publication_method": "GitHub connector Git data; commit identity comes from connected account"
+}

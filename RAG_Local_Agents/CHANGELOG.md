@@ -43,3 +43,14 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 ## Complément I6R-06 — diagnostics et preuves du rendu, 9 novembre 2026
 
 Base `0574f4e` ; diagnostics de conflit sans condition supposée, propriétés manquantes nommées, qualificatifs locaux des mesures coordonnées et registre rendu privé après validation. Implémentation en validation ; aucun résultat natif ni final anticipé. [Protocole et critères](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
+
+## 10 novembre 2026 — clôture I6R-06 et protocole distinct I7
+
+Les diagnostics, qualificatifs locaux et la trace du registre rendu sont
+publiés `522d868`. La suite portable finale passe 5 480 tests ; le nouveau
+final passe 47/48 avec l'écart préexistant F05 conservé. R4 termine ses
+20 positions et huit arrêts ; les preuves de modèle et de rendu restent
+distinctes de la revue documentaire. Le README, le plan et le journal
+reflètent ces résultats, sans requalifier les campagnes historiques.
+I7 dispose d'un protocole séparé pour la pertinence de propriété.
+[Bilan et preuves](reports/trust-i6-diagnostics-results-2026-11-10.md).

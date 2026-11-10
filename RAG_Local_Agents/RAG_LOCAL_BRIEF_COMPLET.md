@@ -2038,7 +2038,22 @@ vérité de cette campagne.
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, itération I6 sur les relations documentaires en cours ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, complément I6 livré avec réserves ; I7 sur la pertinence des propriétés en cours ; qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-10 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I7 — pertinence de la propriété demandée, 10 novembre 2026 (UTC)
+
+**Objectif :** traiter dans un lot séparé la relation contextuelle hors
+propriété demandée observée au nouveau FINAL I6 F05. Le résultat I6 de
+47/48 reste définitif ; aucune valeur inventée n'est attribuée à cet écart.
+**Référence :** `522d86839d5c803c57daec0e799bfa48ee5aa8e7`.
+**Critères :** [protocole préalable I7](reports/trust-i7-property-protocol-2026-11-10.md), PROP-01 à PROP-08.
+
+| Action | Dépendance, livrable et critère | État / preuve |
+|---|---|---|
+| I7-01 | Diagnostic et protocole séparé, nouveaux jeux annotés avant code | EN COURS ; critères fixés, évaluateur distinct, candidat I6 inchangé |
+| I7-02 | I7-01 ; filtrage des seules relations non demandées, citation intégrale, régressions | À IMPLÉMENTER dans un worktree isolé |
+| I7-03 | I7-02 ; contrôles logiciels, quatre positions natives par bras, nouveau final16 | À EXÉCUTER après la recette native I6, sans concurrence lourde |
+| I7-04 | I7-03 ; revue, bilan, documentation et publication sans force | À LIVRER ; historique I6 et limites de qualification conservés |
 
 ## I6 — exceptions, négations et comparaisons, 9 novembre 2026 (UTC)
 
@@ -2061,19 +2076,17 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 publié `26a0eb8`, recette `6394f62` ; 5 397 tests portables PASS, DEV 48/48, p95 contrat 70,88 ms. Native v2 : candidat 18/18 réponses, référence 13/18 + cinq erreurs mémoire ; neuf routes R3 sans modèle. D03/D06 non acquis, suppléments séparés, huit arrêts vérifiés. [Bilan et preuves](reports/trust-i6-native-v2-2026-11-09.md) |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable ; aucune ouverture ni reconstitution de score. Bilan du périmètre exécutable livré avec ses réserves |
-| I6R-06 | Après I6R-04 : diagnostics de conflit/propriétés manquantes et portées des métadonnées ; reproductions et nouveau lot séparé | IMPLÉMENTÉ, contrôles finaux en cours : 80 nouveaux tests, dernière série ciblée 152 PASS ; diagnostics, qualificatifs locaux et trace du registre rendu. [Lot de code](reports/trust-i6-diagnostics-code-2026-11-09.md), [protocole](reports/trust-i6-diagnostics-protocol-2026-11-09.md) ; résultats natifs v2 figés |
-| I6R-07 | Évaluation distincte I6R06-F48, régressions natives appariées et HTTP/SSE, bilan et publication | PRÉPARATION : nouveau final annoté par évaluateur distinct avant exécution, conservé hors arbre ; ne remplace pas le FINAL48 historique perdu. Critères DIAG-01 à DIAG-08 dans le protocole |
+| I6R-06 | Diagnostics de conflit/propriétés manquantes, métadonnées locales et trace du rendu | PUBLIÉ `522d868` ; 80 nouveaux tests, 152 ciblés et 5 480 portables PASS, Ruff/Mypy155 PASS. [Code](reports/trust-i6-diagnostics-code-2026-11-09.md), [bilan final](reports/trust-i6-diagnostics-results-2026-11-10.md) ; natif v2 inchangé |
+| I6R-07 | Nouveau I6R06-F48, régressions natives appariées et HTTP/SSE, bilan et publication | EXÉCUTÉ ET LIVRÉ : final 39/48 → 47/48, 68/68 littéraux/citations, écart F05 préexistant transmis à I7 ; R4 20/20 positions techniques, six échanges 4B, dix registres rendus candidat, huit arrêts vérifiés. [Bilan et limites](reports/trust-i6-diagnostics-results-2026-11-10.md) |
 
-**Points vérifiés :** lots de portée, R3 et recette publiés, suite portable,
-DEV48 et coût contractuel conformes ; 44 positions natives/HTTP conservées
-dans leurs groupes avec revue indépendante, arrêts et sources vérifiés.
-**Réserves :** diagnostics publiés, quota 4B original candidat, erreurs mémoire
-de référence et FINAL48 absent ; aucune qualification globale ou physique.
-**Prochaine action :** reproduire et corriger les diagnostics bornés d'I6R-06
-dans un nouveau lot, puis établir une validation distincte sans reclasser
-les résultats figés. Retrouver l'artefact FINAL exact reste nécessaire pour
-I6R-05 ; une nouvelle annotation demanderait son propre protocole.
-Les échecs I5, I5-PJ et I6 v1/v2 restent des résultats historiques.
+**Points vérifiés :** lots de portée, R3 et diagnostics publiés ; suite portable,
+nouveau final indépendant et recette R4 exécutés, preuves complètes liées au bilan.
+**Réserves :** relation contextuelle non demandée F05 au nouveau final, FINAL48
+historique absent et qualifications globales inchangées. Les erreurs, quotas et
+réserves des campagnes I6 v1/v2 restent des observations historiques.
+**Prochaine action :** terminer I7 avec son nouveau final et sa recette propres,
+sans modifier le candidat I6 ni ses résultats. Retrouver l'artefact FINAL exact
+reste nécessaire pour I6R-05 ; aucune reconstitution ne le remplace.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
 
@@ -8040,6 +8053,21 @@ Les constats natifs v2 restent historiques. Le diagnostic de conflit n'affirme p
 
 Le nouveau I6R06-F48 est annoté et gelé par un évaluateur distinct ; il ne remplace pas le FINAL48 perdu. Les auteurs n'y accèdent qu'après gel du candidat, sans modification après ouverture. Le modèle, les budgets, la base, les scopes et les citations restent inchangés. Référence du lot : [protocole, critères et limites](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
 
+## I6R-06 — bilan figé et nouveau lot de pertinence I7
+
+**Date :** 10 novembre 2026 UTC. **Statut :** décision appliquée. **Référence :** `522d868`.
+
+Le nouveau final I6R06 conserve 47/48, contre 39/48 sur sa référence, avec
+68/68 littéraux/citations et sans régression stricte. F05 reste un échec de
+pertinence d'une relation contextuelle réellement citée, pas une valeur
+inventée. Le code et l'oracle I6 ne sont pas modifiés après ouverture.
+Le correctif de ce défaut relève du protocole I7, avec un nouveau jeu réservé
+et des preuves distinctes. Les limites du corpus historique et de diffusion
+restent ouvertes ; la recette R4 ne requalifie pas les campagnes antérieures.
+
+Source : [bilan I6R-06](reports/trust-i6-diagnostics-results-2026-11-10.md) et
+[protocole I7](reports/trust-i7-property-protocol-2026-11-10.md).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -8089,6 +8117,17 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 ## Complément I6R-06 — diagnostics et preuves du rendu, 9 novembre 2026
 
 Base `0574f4e` ; diagnostics de conflit sans condition supposée, propriétés manquantes nommées, qualificatifs locaux des mesures coordonnées et registre rendu privé après validation. Implémentation en validation ; aucun résultat natif ni final anticipé. [Protocole et critères](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
+
+## 10 novembre 2026 — clôture I6R-06 et protocole distinct I7
+
+Les diagnostics, qualificatifs locaux et la trace du registre rendu sont
+publiés `522d868`. La suite portable finale passe 5 480 tests ; le nouveau
+final passe 47/48 avec l'écart préexistant F05 conservé. R4 termine ses
+20 positions et huit arrêts ; les preuves de modèle et de rendu restent
+distinctes de la revue documentaire. Le README, le plan et le journal
+reflètent ces résultats, sans requalifier les campagnes historiques.
+I7 dispose d'un protocole séparé pour la pertinence de propriété.
+[Bilan et preuves](reports/trust-i6-diagnostics-results-2026-11-10.md).
 
 ---
 
@@ -10262,6 +10301,19 @@ nouvelle dépendance ou contrat public n'est introduit par ce bilan.
 - `services/api/answer_contract.py`, `structured_answer.py`, `query.py`, `execution_trace.py` et leurs tests : contrats exacts des obligations, du rendu et des traces. Aucun contrat externe ni version de dépendance modifié.
 
 Skills lus pour ce lot : `.agents/skills/hybrid-rag-api/SKILL.md`, `RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md`, `.agents/skills/rag-qualification-fixtures/SKILL.md`, `.agents/skills/project-documentation/SKILL.md`. Ces procédures de développement ne sont pas exposées au générateur documentaire.
+
+## I6R-06 — preuves de clôture, 10 novembre 2026 UTC
+
+Le [bilan figé](reports/trust-i6-diagnostics-results-2026-11-10.md) relie la
+référence `0574f4e`, le candidat publié `522d868`, les manifestes logiciels,
+le nouveau final indépendant et les huit blocs natifs R4. Les sorties et
+revues distinguent conformité des relations, fidélité des citations,
+publication effective et exécution du modèle. Les sources primaires déjà
+consultées restent applicables ; aucune dépendance nouvelle n'est introduite.
+
+F05 établit le besoin d'un filtre de propriété cohérent entre obligations
+et relations admises. Il fonde le [protocole I7](reports/trust-i7-property-protocol-2026-11-10.md),
+sans fournir un nouveau score réservé ni modifier les observations I6.
 
 ---
 

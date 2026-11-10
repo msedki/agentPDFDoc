@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "frozen_utc": "2026-11-10T00:12:46.820543+00:00",
+  "base_commit": "522d86839d5c803c57daec0e799bfa48ee5aa8e7",
+  "protocol": "RAG_Local_Agents/reports/trust-i7-property-protocol-2026-11-10.md",
+  "sha256": "ea765c94bbc138afd5afe9755e4c8856329ea26393d9e0fb6c99d4601690ba61",
+  "product_changes_started": false,
+  "scope": "Property relevance, new lot; I6 final preserved at 47/48"
+}

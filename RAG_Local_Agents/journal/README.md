@@ -1,8 +1,12 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau ; chantier EV4B sur `enhanced_version` · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau ; chantier EV4B sur `enhanced_version` · **Mis à jour :** 2026-11-10 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Clôture I6R-06 et nouveau lot I7, 10 novembre](2026-11-10.md) : code publié,
+5 480 tests portables PASS, final 47/48 avec un écart préexistant conservé,
+recette R4 et preuves distinctes. La qualification globale reste ouverte.
 
 [Publication I5 vérifiée](2026-11-09.md#i5--publication-technique-vérifiée) : commit [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), arbre et parent distants vérifiés, publication sans force ; [reçu](../reports/trust-4b-publication-2026-11-09.json). Sources livrées avec réserves, production non qualifiée.
 

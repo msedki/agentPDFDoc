@@ -1,19 +1,32 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I6 en cours ; I5 et I5-PJ publiés avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I6 livré avec réserves ; I7 en cours, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-10 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
-## I6 — portée des relations et coût, 9 novembre 2026
+## I6 — diagnostics et preuve du rendu, bilan du 10 novembre 2026
 
-L'itération reprend les exceptions et négations H24/H06, les comparaisons
-H11/H12/D11/D12 et les appels redondants sur les réponses partielles.
-Le [protocole préalable](RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md)
-fixe les jeux, mesures et critères avant modification. Le
-[plan](RAG_Local_Agents/PLAN.md) suit la réalisation et les publications
-par lot. Le [premier lot R1](RAG_Local_Agents/reports/trust-i6-relations-r1-2026-11-09.md)
-corrige H24/H06 sur les cas connus et passe 369 tests ciblés.
-[R2](RAG_Local_Agents/reports/trust-i6-relations-r2-2026-11-09.md) répare les
-comparaisons et passe les 48 anciens cas I5-PJ. Les frontières du nouveau DEV,
-le coût et la qualification finale restent en cours ; le jeu final I6 est fermé.
+Le correctif [522d868](https://github.com/msedki/agentPDFDoc/commit/522d86839d5c803c57daec0e799bfa48ee5aa8e7)
+est publié sur `enhanced_version`. Il nomme les propriétés manquantes,
+retire la condition commune non établie des diagnostics de conflit, garde
+les qualificatifs de chaque mesure dans leur proposition et conserve le
+registre du texte rendu après vérification. Les citations intégrales,
+conditions et négations restent protégées ; Qwen3-4B Q4_K_M reste le seul
+générateur.
+
+Le nouveau final indépendant passe de **39/48 à 47/48**, avec **68/68
+littéraux et citations** dans les deux bras et aucun nouveau faux appui.
+La suite portable termine à **5 480 PASS**, 25 ignorés et 48 exclus ; Ruff
+et Mypy passent. La recette native R4 compte **20/20 positions techniques
+conformes**, six échanges 4B réellement terminés et dix registres rendus
+candidats vérifiés. Les résultats contractuels, documentaires et techniques
+restent distincts dans le [bilan et ses preuves](RAG_Local_Agents/reports/trust-i6-diagnostics-results-2026-11-10.md).
+
+Un écart préexistant subsiste au final : une demande de tension d'entrée
+admet aussi une relation de sortie réellement présente dans la citation.
+Le [lot I7](RAG_Local_Agents/reports/trust-i7-property-protocol-2026-11-10.md)
+le traite séparément, sans reclasser les 47/48 d'I6. Le FINAL48 historique
+reste introuvable et n'a aucun score reconstruit. Les bilans datés ci-dessous
+conservent leurs échecs et réserves ; la qualification globale de diffusion
+reste ouverte dans le [plan](RAG_Local_Agents/PLAN.md).
 
 ## I5-PJ — opérateurs et exceptions, 9 novembre 2026
 

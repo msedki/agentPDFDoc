@@ -1,0 +1,2998 @@
+{
+  "schema_version": 1,
+  "collected_utc": "2026-11-10T00:27:18.033398+00:00",
+  "archive": "trust-i6-diagnostics-evidence-2026-11-10.json.gz",
+  "archive_sha256": "0339ade3b28b6209a550a786186f62a14ce21ae3aea1708945159005d93605e4",
+  "archive_bytes": 2415499,
+  "file_count": 372,
+  "source_bytes": 14283835,
+  "roundtrip_verified": true,
+  "native_allowlist_sha256": "6e120b37612d422ff7c4e6bfd0ebb21baa3c7c0d2500bf79f8629808f6770e22",
+  "exclusions": [
+    "service-data and HOME",
+    "qdrant-storage and SQLite databases",
+    "qdrant.yaml and private service credentials",
+    "all service and launcher logs",
+    "models, binary runtimes and caches",
+    "unlisted files and directories"
+  ],
+  "no_recursive_export": true,
+  "files": [
+    {
+      "path": "native/common-locks/config/artifacts.lock.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/config/artifacts.lock.json",
+      "bytes": 24728,
+      "sha256": "6df70192fbaab2857048236638f0c0e2a70c480f8fa796afa2924fe8836dae7d",
+      "encoding": "utf-8",
+      "purpose": "versioned common profile/dependency lock"
+    },
+    {
+      "path": "native/common-locks/config/enhanced-4b.lock.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/config/enhanced-4b.lock.json",
+      "bytes": 1193,
+      "sha256": "a54216caeb794243fbb7e35118ade70a533fe25db4f4eea73c1b673aaff24f88",
+      "encoding": "utf-8",
+      "purpose": "versioned common profile/dependency lock"
+    },
+    {
+      "path": "native/common-locks/config/enhanced-4b.yaml",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/config/enhanced-4b.yaml",
+      "bytes": 6519,
+      "sha256": "092da8f90103654027cee93ce0edcc9a312f45b70078047cfe4c1eeebdcf5716",
+      "encoding": "utf-8",
+      "purpose": "versioned common profile/dependency lock"
+    },
+    {
+      "path": "native/common-locks/uv.lock",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/uv.lock",
+      "bytes": 154319,
+      "sha256": "898b33d18e9ba76ccfabdf255cb2faa71df7c3cbd41321ed0fc7643e82c3ae37",
+      "encoding": "utf-8",
+      "purpose": "versioned common profile/dependency lock"
+    },
+    {
+      "path": "native/corpus/http_conflict/A.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-original/A.docx",
+      "bytes": 36622,
+      "sha256": "f118a00505014b90647355676531bd2386ea6000e8327844b8bf245608b25ec3",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/http_conflict/A_new.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-original/A_new.docx",
+      "bytes": 36621,
+      "sha256": "e9d7db9bba1e2b0e85616595ee98d2e8eddedaa00b8d9d4b3a1d22f644246f21",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/http_conflict/B.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-original/B.docx",
+      "bytes": 36622,
+      "sha256": "47da445c4abe9e144b669d4ba0ca115b16dddedb4deb6131e09a24465052668c",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/http_selection/A.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-selection-supplement/A.docx",
+      "bytes": 36611,
+      "sha256": "03321eaf5b6d563c5175145c7463efbb0748304b7428982abad71007b180faf3",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/http_selection/A_new.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-selection-supplement/A_new.docx",
+      "bytes": 36610,
+      "sha256": "12b20045e7a4a8f9f29ac866792f9e98cb6454a44ea40c84a6ee83c72ec4b4fa",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/http_selection/B.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-selection-supplement/B.docx",
+      "bytes": 36603,
+      "sha256": "cd67e09c9dcbfc01fd38b08daef28a9c2d4f07d6ace2032bcee3effc9b05ecd4",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d02_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d02_1.docx",
+      "bytes": 36636,
+      "sha256": "089695fd7c3e4b16f2124b99a9d93dfa1d32b280e50aa86a024c98056b3ca001",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d04_1-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d04_1-extraction.json",
+      "bytes": 5065,
+      "sha256": "d16ae585dae48e25f85b264bccee9d133fc98485cc864e09e05f632c4f91544e",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d04_1.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d04_1.pdf",
+      "bytes": 1457,
+      "sha256": "025377f05db5a6fb64c296cd62e99d3a7398ff0f6c2253aba140a2e6df485f74",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d05_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d05_1.docx",
+      "bytes": 36644,
+      "sha256": "9130ae43983cf7458ee327308865625f37021db4961585d8249e03e9aaeae955",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d09_1-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d09_1-extraction.json",
+      "bytes": 5008,
+      "sha256": "3e363002f1f767f3bfcb59dbfd1630697c61d0b739fe202dfb6ca892a82ec045",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d09_1.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d09_1.pdf",
+      "bytes": 1432,
+      "sha256": "ac8da22d1980fb83a8107162d9d81f06389d8e978d12e8941abfd70a5da65661",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d11_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d11_1.docx",
+      "bytes": 36640,
+      "sha256": "2636252bd85ccefd64228233927a5912b146dc71094a06796bb0a4ff8ae7a51b",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d14_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d14_1.docx",
+      "bytes": 36635,
+      "sha256": "bff1ce329af0836474bab47ae1e6d2341be85cb5e81fb9f08d1d2ce40f74ff21",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d17_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d17_1.docx",
+      "bytes": 36649,
+      "sha256": "20dcce69413847bf9867b5a0fb2a4cb91d012f04e0462eff255e12f0954b1bff",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d19_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d19_1.docx",
+      "bytes": 36666,
+      "sha256": "838ac088b2a31947cb16c95bf446b7d494ee226560f3e47df44f22171bb018ea",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d28_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d28_1.docx",
+      "bytes": 36650,
+      "sha256": "badc0d2c3623046c39f5e238b3ecb499d8e9cf2cf7619eb8abe23f4b6a932aab",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d32_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d32_1.docx",
+      "bytes": 36660,
+      "sha256": "06517136c9c11aab85c6172299c947ff3c64e61679c712d6892ffa66aec52b4a",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d33_1-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_1-extraction.json",
+      "bytes": 4938,
+      "sha256": "c0d9283a02e252a0f085684cd26efa46bad9e83fe86337b8cfca79265c79bbb9",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d33_1.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_1.pdf",
+      "bytes": 1396,
+      "sha256": "7ffdb302281c676b46e4cb859b8f213c88b19b5edc397a78bba75b82d5951204",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d33_2-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_2-extraction.json",
+      "bytes": 4945,
+      "sha256": "6d48d042f272a2c8cee437b64e953663f3d6cca7038d84ef08d67a4a26e6cdc1",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d33_2.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_2.pdf",
+      "bytes": 1397,
+      "sha256": "3ac7c6f36e774abc77fa1b61c6b15bd5c2ff3a1611cc9519f2715763c7060e4d",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d35_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d35_1.docx",
+      "bytes": 36620,
+      "sha256": "0d935bbb3f84f2062d568ae6ccef83dacbe9795ad2836457070c0f98bccb6eae",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d38_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d38_1.docx",
+      "bytes": 36621,
+      "sha256": "7a8983c6d064f3a31353e2a0595e2a79fe6382ad3fa6bd41e7790dd3a473e70a",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d38_2.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d38_2.docx",
+      "bytes": 36621,
+      "sha256": "7a8983c6d064f3a31353e2a0595e2a79fe6382ad3fa6bd41e7790dd3a473e70a",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d42_1-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_1-extraction.json",
+      "bytes": 4945,
+      "sha256": "6f32a518821a0f054592066055d7ee894caf6dc5e86852f3c1539a40cc1be1ac",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d42_1.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_1.pdf",
+      "bytes": 1392,
+      "sha256": "491f550c420ac1a401d7bae1f3034597ac47ea2dee955b7f2df1c4ac5c5c5f54",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d42_2-extraction.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_2-extraction.json",
+      "bytes": 4952,
+      "sha256": "f77e0a6abc28df0ec70c234364898e0637b18914b1bc76ba6d4de10a03fc05ba",
+      "encoding": "utf-8",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d42_2.pdf",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_2.pdf",
+      "bytes": 1393,
+      "sha256": "a10a10020c379375634625377a61667c2bdd7e3fa414c775b84a39958f2aa983",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d45_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d45_1.docx",
+      "bytes": 36619,
+      "sha256": "48a4510d884b1b1f22cb48381cf3211f56052dff008d18ede79ce77852ea452e",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d45_2.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d45_2.docx",
+      "bytes": 36613,
+      "sha256": "5fb31999a0474166ca1422f2884384b1c212558f4c7d18ad0621bc9a63f67e5a",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d48_1.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d48_1.docx",
+      "bytes": 36622,
+      "sha256": "a68605bf2a6aead15849b672a13523daf0185c0462394db55e1a8e6900e50cb6",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/i6d48_2.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d48_2.docx",
+      "bytes": 36622,
+      "sha256": "4f496b8987bdefec4300e8f5f16630774e8e1aff46afee6ba16c0924b0ece239",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/n17.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/n17.docx",
+      "bytes": 36613,
+      "sha256": "3ef1355ac164339d06ecb138bb6a2c81b7f01b004863b9685469285c97e2f940",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/original6/n18.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/n18.docx",
+      "bytes": 36613,
+      "sha256": "d18dfc1a6ca98a893337a1484e1669d74719f3f576b21a8e3dbb5dc1bcb8fb99",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/selection2/i6s01.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/selection-supplement/i6s01.docx",
+      "bytes": 36610,
+      "sha256": "5dc1562d40e745c95a5873189df1b24828db5c13efd6fffee3987835e68adde5",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/corpus/selection2/i6s02.docx",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/selection-supplement/i6s02.docx",
+      "bytes": 36611,
+      "sha256": "870e1b0054cf69f119a6392aa6cc638a43a0a3c3f00fcddd2911d49ec3f461dc",
+      "encoding": "base64",
+      "purpose": "synthetic original, replacement, or frozen PDF extraction"
+    },
+    {
+      "path": "native/independent/native-r4-documentary-review.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/native-r4-documentary-review.json",
+      "bytes": 157734,
+      "sha256": "0319f8015795eb511746e25edcda01d04568d32850c771aa27896199649af620",
+      "encoding": "utf-8",
+      "purpose": "separate independent documentary judgment"
+    },
+    {
+      "path": "native/independent/native-r4-documentary-review.md",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/native-r4-documentary-review.md",
+      "bytes": 10318,
+      "sha256": "c4b12004c78c961534505d79533f2cb45341aa8700b713e807de735ba286ff52",
+      "encoding": "utf-8",
+      "purpose": "separate independent documentary judgment"
+    },
+    {
+      "path": "native/qa/01-baseline-original6-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/01-baseline-original6-completion.json",
+      "bytes": 326,
+      "sha256": "0cf6cb98ef3ab271ceca687b2798de09b7a17d10bbd559a8aa7edd2b130ab409",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/01-baseline-original6-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/01-baseline-original6-readback.json",
+      "bytes": 9117,
+      "sha256": "66b50ed9bfdf67f9a377600648ab5921eb1cd04cb77e004186194968854646d1",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/01-baseline-original6-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/01-baseline-original6-started.json",
+      "bytes": 964,
+      "sha256": "fc13dbc80e720eb32b2e17c0afeff2e02778187f82a576501d11972d3946f2e7",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/02-candidate-original6-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/02-candidate-original6-completion.json",
+      "bytes": 327,
+      "sha256": "67b46910f5587f19f217478f36fbdfae8616282d9c744e99ab774620fbf567d9",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/02-candidate-original6-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/02-candidate-original6-readback.json",
+      "bytes": 11446,
+      "sha256": "e6c16e0c1a8bf9a09059b15bf8dc7e15594bf1e1bc30ce3b9495599c9d1f0822",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/02-candidate-original6-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/02-candidate-original6-started.json",
+      "bytes": 966,
+      "sha256": "58b3ce8b26141feab37f394bc6ec382aeac4e24e0ce93437e0bc6c285764dd07",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/03-baseline-selection2-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/03-baseline-selection2-completion.json",
+      "bytes": 327,
+      "sha256": "cfd081be21fef117561e793c5028073872c66bec3565a97e2ef63d695cca14c5",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/03-baseline-selection2-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/03-baseline-selection2-readback.json",
+      "bytes": 3764,
+      "sha256": "5c85cedec344eae553af7ad7484470f0fd4753d6125dc12aa414f1bad8a0efee",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/03-baseline-selection2-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/03-baseline-selection2-started.json",
+      "bytes": 895,
+      "sha256": "6692df8332ce8dc1726c2905a5d5fff2f229149a6a8f5d1985369396166a3f40",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/04-candidate-selection2-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/04-candidate-selection2-completion.json",
+      "bytes": 328,
+      "sha256": "7bd9aabb4cea49f371ecdb352134f096801da6a0a5a6772f31877be6ec185470",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/04-candidate-selection2-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/04-candidate-selection2-readback.json",
+      "bytes": 4541,
+      "sha256": "4179882156f581c6c6765fc1a8e0f6f64ead44bc3a667070672c50068a69a105",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/04-candidate-selection2-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/04-candidate-selection2-started.json",
+      "bytes": 897,
+      "sha256": "a51a7f3b34e64ee1256906df36cd110a7f20ccb6fc9cc5e39e219a93d2e26d9d",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/05-baseline-http_conflict-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/05-baseline-http_conflict-completion.json",
+      "bytes": 330,
+      "sha256": "68504f46de653f6897fe4cadd26d88f66e483df18cb99a5da6365c6d1fe877d9",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/05-baseline-http_conflict-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/05-baseline-http_conflict-readback.json",
+      "bytes": 5294,
+      "sha256": "4cd57ba1cbe14c4e2319c7e4df09dd4a29052b9d33eacea299d8cab963bb6085",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/05-baseline-http_conflict-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/05-baseline-http_conflict-started.json",
+      "bytes": 892,
+      "sha256": "c699ec32dc5d5e5081b4233a7323fee856393e8ba5abb8f990cd5f1937f5e482",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/06-candidate-http_conflict-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/06-candidate-http_conflict-completion.json",
+      "bytes": 331,
+      "sha256": "4f7f20d362ffe7fefb7f74a3cf8f16ac8ca6a156390ab81436e5238d485392a3",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/06-candidate-http_conflict-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/06-candidate-http_conflict-readback.json",
+      "bytes": 5682,
+      "sha256": "fcaa55bcd04b2887929d0574d30b30f7f7c66213250d0d28f5e2339d1abd0a36",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/06-candidate-http_conflict-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/06-candidate-http_conflict-started.json",
+      "bytes": 894,
+      "sha256": "341a149483e0dc6bd581a5ad4a953084d8310f97547676ca198517c59f7dde1a",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/07-baseline-http_selection-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/07-baseline-http_selection-completion.json",
+      "bytes": 331,
+      "sha256": "233f8004f37f385c3507e430fd7231c5772356023ac20843f193d0fc54f4867f",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/07-baseline-http_selection-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/07-baseline-http_selection-readback.json",
+      "bytes": 5283,
+      "sha256": "89b457f8642192a2de0a5bc5f46abf80abf8347b534913a69e51d6413c0e6578",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/07-baseline-http_selection-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/07-baseline-http_selection-started.json",
+      "bytes": 899,
+      "sha256": "c08e403c79d8f40ba29c18af3d355a52754854134bf26a50ca6afa76d97e37fe",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/08-candidate-http_selection-completion.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/08-candidate-http_selection-completion.json",
+      "bytes": 332,
+      "sha256": "310a940350eef5cc88a00d599f231b02c099edadb4369b773ff0f3a440029368",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/08-candidate-http_selection-readback.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/08-candidate-http_selection-readback.json",
+      "bytes": 5671,
+      "sha256": "d9726e17d6912845cf1ce9761856ccd1f27b39c40ec03817d83376578a95ddcc",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/08-candidate-http_selection-started.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/08-candidate-http_selection-started.json",
+      "bytes": 901,
+      "sha256": "9956fd700a0d4dd39efdd05cdc92831a4c8e36ec9fbaddddba574d15faa80e43",
+      "encoding": "utf-8",
+      "purpose": "execution and separate readback receipt"
+    },
+    {
+      "path": "native/qa/README.md",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/README.md",
+      "bytes": 7938,
+      "sha256": "135402dcf39af21b4e08fac20c838d5526e288e102f4065cf81835eebeb77c60",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/aggregate_results.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/aggregate_results.py",
+      "bytes": 23071,
+      "sha256": "b8c5b06a0fc58709168c0d54f5d2095d333272b14ad260b9a1956b0bda3e56ad",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/campaign-plan.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/campaign-plan.json",
+      "bytes": 47151,
+      "sha256": "61d207b8a2c019e1568be2c33b401343c55bf2a8296c0460cca722d0e7441e4e",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/campaign-source-end-state.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/campaign-source-end-state.json",
+      "bytes": 3496,
+      "sha256": "6cac6f56daddde50e35b524c125cdcc15499de311169302e40090ab9f5f058ac",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/candidate-freeze.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/candidate-freeze.json",
+      "bytes": 31354,
+      "sha256": "578765e57b33883883066edb23a1ed2735a37b19a675390ad4a2d6b10b7fafe7",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/inputs-http_conflict.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/inputs-http_conflict.json",
+      "bytes": 2255,
+      "sha256": "f26b9855a9bf85f3c394aee32545963ec863d524722c1da78ca4215f74c744c1",
+      "encoding": "utf-8",
+      "purpose": "exact frozen inputs"
+    },
+    {
+      "path": "native/qa/inputs-http_selection.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/inputs-http_selection.json",
+      "bytes": 4995,
+      "sha256": "fa0393835f219d9d22ed7d9c21622cb84f950f686f0471521b6e94fea17d9688",
+      "encoding": "utf-8",
+      "purpose": "exact frozen inputs"
+    },
+    {
+      "path": "native/qa/inputs-original6.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/inputs-original6.json",
+      "bytes": 40651,
+      "sha256": "f4d1774706c61ec6c9bcf86687c2d466d7db0ee7f36935fd5528535e57c138ae",
+      "encoding": "utf-8",
+      "purpose": "exact frozen inputs"
+    },
+    {
+      "path": "native/qa/inputs-selection2.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/inputs-selection2.json",
+      "bytes": 6909,
+      "sha256": "84abc11714807866f066105439fddf26f8a70413bf35c176a08b0078a745e2e7",
+      "encoding": "utf-8",
+      "purpose": "exact frozen inputs"
+    },
+    {
+      "path": "native/qa/launch_step.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/launch_step.py",
+      "bytes": 8840,
+      "sha256": "9b8a453914311c439e2321f7f0fe3efec34700ff69f9a9cf425c0d20c00fbc63",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/native_common.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/native_common.py",
+      "bytes": 3667,
+      "sha256": "058fff27f7ad7d757a9dac4b70284af0a880ccab1b3213d28797446cc6f89759",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/preparation-receipt.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/preparation-receipt.json",
+      "bytes": 328,
+      "sha256": "9cb7068906f75a96d24acff50b60bf577fd60ca2cccb4993782456b8192f70d6",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/prepare_plan.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/prepare_plan.py",
+      "bytes": 6683,
+      "sha256": "48b97f64aef7e36832480741ab178cece5f4ff25c6dd705f9800275659200ccf",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/rendered-evidence.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/rendered-evidence.json",
+      "bytes": 593783,
+      "sha256": "3653562f19bde9a4c1600e20d5e013c228be7dfc52f00970bfbf58d461e78cf8",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/review_step.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/review_step.py",
+      "bytes": 13884,
+      "sha256": "f25ebae58474a7c6d8a677fe419f67dd39a65c8a97ab3bd776dc268a86ca9547",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/reviewer-preparation-selftest-v2.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/reviewer-preparation-selftest-v2.json",
+      "bytes": 2130,
+      "sha256": "94b330d2e57531bf71e0d19a42054f47aaf57f89cc6b204b8e8678021bd3aeea",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/technical-aggregate.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/technical-aggregate.json",
+      "bytes": 91981,
+      "sha256": "28722924805faa4d10d992ca217319a985540d5b450dd2afebb4eafc52993c00",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/qa/technical-aggregate.md",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/technical-aggregate.md",
+      "bytes": 3628,
+      "sha256": "272af1096b316c026db8dd7996036130e113bde0beb25b5b3d80dbf941e76634",
+      "encoding": "utf-8",
+      "purpose": "frozen plan, launcher, evaluator or derived evidence"
+    },
+    {
+      "path": "native/reference-harness/tools/qualification/enhanced_campaign.py",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/enhanced_campaign.py",
+      "bytes": 15369,
+      "sha256": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2",
+      "encoding": "utf-8",
+      "purpose": "unchanged versioned harness"
+    },
+    {
+      "path": "native/reference-harness/tools/qualification/production_i4_http.py",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/production_i4_http.py",
+      "bytes": 26315,
+      "sha256": "bd4a1e53f343f40165e24010a1801c796fbd8930a8ee5ca9bd8b213d70334969",
+      "encoding": "utf-8",
+      "purpose": "unchanged versioned harness"
+    },
+    {
+      "path": "native/reference-harness/tools/qualification/provision_enhanced_4b.py",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/provision_enhanced_4b.py",
+      "bytes": 7240,
+      "sha256": "65c2a5b17002ca35b799e38dad07c7437250cbe403db31c7118656dcfb55bdc3",
+      "encoding": "utf-8",
+      "purpose": "unchanged versioned harness"
+    },
+    {
+      "path": "native/reference-harness/tools/qualification/revision_campaign.py",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/revision_campaign.py",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8",
+      "purpose": "unchanged versioned harness"
+    },
+    {
+      "path": "native/reference-harness/tools/qualification/run_grounded_native.py",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/run_grounded_native.py",
+      "bytes": 10695,
+      "sha256": "b6a443645962a030d699905d6e6b4b623cbbfc06166dc5f991a115ba9f07c397",
+      "encoding": "utf-8",
+      "purpose": "unchanged versioned harness"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurement-process.json",
+      "bytes": 126,
+      "sha256": "05ef4e6d3aaca4399a0b75795df5a61facb0b48a00cb06e0fb1970a834e53dc4",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D28-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D28-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "5e8d2de16f61750b24aeae87e63f2d78e0f4220241cfa0f4a09869bd9209a4c4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D28-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D28-baseline-0.json",
+      "bytes": 75984,
+      "sha256": "e00de0c508142b4938abd329f3147c04baa8040509f4619ec2775810fa3216b7",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D32-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D32-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "e4cf41c2374268a8fa3620752ab260525b6e70da2f929d2a6684d24cff2896e3",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D32-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D32-baseline-0.json",
+      "bytes": 76261,
+      "sha256": "70b9a0e190a2a0be0c0bded9213d23c59e6171bef40151b252f93eb20a30ba8f",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D33-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D33-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "79578953a2842203c0b4776f80dfa0245a7c5a6bc93e682cc2da5add6a71c596",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D33-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D33-baseline-0.json",
+      "bytes": 96610,
+      "sha256": "0a2fb6471bdcf78ac556d8bab20a67c10a3d7b51a52cca293f54dfc2fc5e1362",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D35-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D35-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "51de480df2aab6ceb0d84481b931425777387ccaaab55843b65d99e1beb056f8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D35-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D35-baseline-0.json",
+      "bytes": 95831,
+      "sha256": "05e79bacdc9908322c928f6cc14aa8a068e84be88aa1d69968dfdc0e674c932d",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D45-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D45-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "e46a52b53cea4c25dc41a28cbc6a6638f9c064d61f419dd9e14dab73480aa328",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D45-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D45-baseline-0.json",
+      "bytes": 123368,
+      "sha256": "8a73c76ba15266de6fefd3a1ca885c7c64cb3ce02d17934a1bd1335517624a7b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D48-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D48-baseline-0.attempt-start.json",
+      "bytes": 140,
+      "sha256": "3c2fa61ff4e702c2ce2e9ba80d1c2273180659a8ff235a172576ae9df2aac077",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/N_I6D48-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/N_I6D48-baseline-0.json",
+      "bytes": 175021,
+      "sha256": "b39b3500b7ee854abe16228b909f509b21fb46f8a33983c4110b11adaa2f56c8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/bindings.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/bindings.json",
+      "bytes": 6251,
+      "sha256": "6fc5afa0b78f51eb1e8356a648d649219705447bf11f602d956af68de833e63d",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "8cb0682d931435c6561191b714716b6f067cbf53543234629aa5d5e33b9955c5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/01ef3a07-8198-462f-a35a-5b0638fabba6.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/01ef3a07-8198-462f-a35a-5b0638fabba6.jsonl",
+      "bytes": 68760,
+      "sha256": "c8111de290073ceaf96a93cc5672fc9b66655760b3b532045255917f23060f81",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/17ef850e-b540-469d-9342-7ac8ee674303.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/17ef850e-b540-469d-9342-7ac8ee674303.jsonl",
+      "bytes": 77887,
+      "sha256": "68e2645a227fe507dcbae1df043bf7d298dd3cf8869dbd193606538954a716c0",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/2daba34e-38a9-42ca-8413-2428c6a4cf34.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/2daba34e-38a9-42ca-8413-2428c6a4cf34.jsonl",
+      "bytes": 123113,
+      "sha256": "fa09f60487a10dd72250f22ccc84bc56c41738f1eab7dc875e4e67f60ce7d9cf",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/52083cda-d230-48b3-bb3f-9a09c1adeb85.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/52083cda-d230-48b3-bb3f-9a09c1adeb85.jsonl",
+      "bytes": 69452,
+      "sha256": "d6997a488c9f8491c932c81f86b5cca41a6705a42f1ab43846125d1fd7373653",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/ee2c2592-bb27-4dbf-9b94-8231d4feec33.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/ee2c2592-bb27-4dbf-9b94-8231d4feec33.jsonl",
+      "bytes": 89559,
+      "sha256": "304cb6bf6901930ff9361c15f1376cebac4baf3123bcf0f314b9a6c4709f3294",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/data/traces/f4b34099-d399-40c0-b48e-1ab84ab12c95.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/data/traces/f4b34099-d399-40c0-b48e-1ab84ab12c95.jsonl",
+      "bytes": 77403,
+      "sha256": "65c4a08db4f060bb50e6ff97ab9c6d480562a90471974e8a4d2dbd1aa60cb6ec",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d02_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d02_1.extraction.json",
+      "bytes": 12389,
+      "sha256": "75735472f9ebb7a9eb4fe40db5bdc7ba70ff2dbc93127973ca2a22e7fbb3d952",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d04_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d04_1.extraction.json",
+      "bytes": 5065,
+      "sha256": "d16ae585dae48e25f85b264bccee9d133fc98485cc864e09e05f632c4f91544e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d05_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d05_1.extraction.json",
+      "bytes": 12397,
+      "sha256": "80488d586fa27f36fbfdf1e52816493abcac2c6cfb58b73aeb24824be30c11d1",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d09_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d09_1.extraction.json",
+      "bytes": 5008,
+      "sha256": "3e363002f1f767f3bfcb59dbfd1630697c61d0b739fe202dfb6ca892a82ec045",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d11_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d11_1.extraction.json",
+      "bytes": 12387,
+      "sha256": "e950e9ce41c2f86c2509630b07f9667566e400004f7a71f2f15ebccb1fd00fc0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d14_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d14_1.extraction.json",
+      "bytes": 12387,
+      "sha256": "153992887b56992712a82ab8b2331f5645d6fed0cb3cdff32686e9299fbc9677",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d17_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d17_1.extraction.json",
+      "bytes": 12438,
+      "sha256": "ec40d18d25de0d30c6e6907010b73e8cb892287666945de5d854aec4ea4a93a8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d19_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d19_1.extraction.json",
+      "bytes": 12474,
+      "sha256": "e450b909bc198f720bf19b970cc46e7c58ee2f843a480acaddfc0ece2c15d448",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d28_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d28_1.extraction.json",
+      "bytes": 12458,
+      "sha256": "e6b96c237ddefa685c7d55bb7e700072c16cef0246e136ecdca300d0b4aae5b6",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d32_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d32_1.extraction.json",
+      "bytes": 12500,
+      "sha256": "ce152358f4ad719d2e21d440559ca1b181d6cc288043423639744274beb8876b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d33_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d33_1.extraction.json",
+      "bytes": 4938,
+      "sha256": "c0d9283a02e252a0f085684cd26efa46bad9e83fe86337b8cfca79265c79bbb9",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d33_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d33_2.extraction.json",
+      "bytes": 4945,
+      "sha256": "6d48d042f272a2c8cee437b64e953663f3d6cca7038d84ef08d67a4a26e6cdc1",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d35_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d35_1.extraction.json",
+      "bytes": 13571,
+      "sha256": "9cf58afce859bcf2a9140cd4cdba4ee0f447e7c253020eebc4cb8557b3bc4097",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d38_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d38_1.extraction.json",
+      "bytes": 13555,
+      "sha256": "abc58d0e0200d83ae9cba0e632f2fedeca6021f0dfd819092eec5ff892fa9c55",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d38_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d38_2.extraction.json",
+      "bytes": 13555,
+      "sha256": "03b892b07175ad7421d5d0aa36967a7c3f5bba4bb0f30a4b3800130ac43e7bc2",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d42_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d42_1.extraction.json",
+      "bytes": 4945,
+      "sha256": "6f32a518821a0f054592066055d7ee894caf6dc5e86852f3c1539a40cc1be1ac",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d42_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d42_2.extraction.json",
+      "bytes": 4952,
+      "sha256": "f77e0a6abc28df0ec70c234364898e0637b18914b1bc76ba6d4de10a03fc05ba",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d45_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d45_1.extraction.json",
+      "bytes": 13553,
+      "sha256": "fc8eeda928dbbb5edf495a4879cd7646f7c7f96da3e02ff2dd38cd234ea9b716",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d45_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d45_2.extraction.json",
+      "bytes": 12313,
+      "sha256": "726f6f9dd78ccdfc4d57167224a3bedc6df05160d1c57a4dc2e124b86ec1f390",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d48_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d48_1.extraction.json",
+      "bytes": 13555,
+      "sha256": "f4a00e17b6930571f8ed81eb91e46e9f3081cd51eea0a8b89dc2ae3cdd29d4c9",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/i6d48_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/i6d48_2.extraction.json",
+      "bytes": 13555,
+      "sha256": "4553041cf95c3c9e9f3f56cd5e0234320e2b1c3416578022611f15ef03d1fb17",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/measurement-harness.py",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/memory-peaks.json",
+      "bytes": 1408,
+      "sha256": "ec852b298f9f6b3a1a364c17e5e53de2205f7494ab0e24f24056ff367a19c28e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/memory.jsonl",
+      "bytes": 5837,
+      "sha256": "0a43245ee89366cc066575c2106ae91c18cbe87941bbbfe1e8894a9d580b166c",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/n17.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/n17.extraction.json",
+      "bytes": 12299,
+      "sha256": "4368dbeb0accc0b3b76bd1443fd86f737fad33d87e6dd88221234805996d4151",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/n18.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/n18.extraction.json",
+      "bytes": 12299,
+      "sha256": "c5ad38f0b07ad2c28a1f5fdb0e84fa7d1b20db9dac8b8bd6c69e64997f09e0c8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/protocol-frozen.json",
+      "bytes": 53218,
+      "sha256": "277c3fcd60d62ad8b9f4c51b301bc9d4e7de1731aa48bddfb924ccc8b7435032",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8185,
+      "sha256": "d691a4f1b2af577eff75ad86c7256622d97c800f6693e280e7757eeff83916f6",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/profile.yaml",
+      "bytes": 6790,
+      "sha256": "27b44acb30e36a06619f10381d2105b953f231e1f6c8f3a637b18aae4550dbe8",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/01-baseline-original6/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/01-baseline-original6/service-stop.json",
+      "bytes": 547,
+      "sha256": "09d80e6293cf3655f9dddd0670497736cd0dfbe8f0c5a1138df0d28b6aa1d451",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurement-process.json",
+      "bytes": 126,
+      "sha256": "05ef4e6d3aaca4399a0b75795df5a61facb0b48a00cb06e0fb1970a834e53dc4",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D28-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D28-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "f6c47998ad0389bf2517ea0549b137646a99f493758c88d16677cba47112a389",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D28-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D28-candidate-0.json",
+      "bytes": 76152,
+      "sha256": "5e7734e1a7817d9e9ee4c5a588fb64b733e57cdb1130704992257d91b9f08a86",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D32-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D32-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "089f5ada60bbe8fbbb2f221e5c2e4ffd3d648de2c1646d84183be806e27f4438",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D32-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D32-candidate-0.json",
+      "bytes": 76187,
+      "sha256": "4d142c40f640417adaceccf4e6706a1800d4f75a0b0b5e70f738fd26cef3f66a",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D33-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D33-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "6ae81dd6fd12b422f89bdcc33a44aaee925e55c1472b5bd07ff4997e4c94f1cd",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D33-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D33-candidate-0.json",
+      "bytes": 96613,
+      "sha256": "9037d3b7c167f419a1a1ef8400eb1ca7da3bb66e47254e06d9b2fbe07bf8163e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D35-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D35-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "28fea3ff9b6a932783d5df24ad0672eeeda1ccc68257377040241e50b4cf7bff",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D35-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D35-candidate-0.json",
+      "bytes": 95832,
+      "sha256": "136aed7234f0a4f36402697e9165920297e4c9b9789923d6b96cef25dac56dd8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D45-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D45-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "53e59c97024c434992e7807e30f90c2111962cdfa2078892dc6ce36e40cae045",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D45-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D45-candidate-0.json",
+      "bytes": 123118,
+      "sha256": "18d86f034ebff6ec4c82466a73267d26e84e23de0895ce63d1b19be02434f41a",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D48-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D48-candidate-0.attempt-start.json",
+      "bytes": 141,
+      "sha256": "86749559349a3da086e57d5f09dee9542a3319d1a26aebcd21ad2954a62e10ae",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/N_I6D48-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/N_I6D48-candidate-0.json",
+      "bytes": 174764,
+      "sha256": "30ddd5a88c4370a5db9315b22ba328ff392e5c3f015247410a86697dd99657ae",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/bindings.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/bindings.json",
+      "bytes": 6251,
+      "sha256": "7d02061a112cb5352bc7d9b23c168ba8acff433e6894025c57cd9904a27bcec7",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "d85f31020e72a4d6e1ce0447ba8a12fd6499892bd3b954c9a2f79a30f2118e49",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/38b96bf2-2e7b-4794-82df-7d47d91aaa09.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/38b96bf2-2e7b-4794-82df-7d47d91aaa09.jsonl",
+      "bytes": 79686,
+      "sha256": "8ad10821a9a18c38d983429aa1ea297ba20179554661378e6730bb0c10488052",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/4112f5e3-d917-4f4e-b9f9-383ee4a7b28f.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/4112f5e3-d917-4f4e-b9f9-383ee4a7b28f.jsonl",
+      "bytes": 92020,
+      "sha256": "aace898b2d870d5f210e88ee67113e7087ff77525b555d94645de2252835b745",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/521a4d38-786f-4713-a86f-e84b97c40c3b.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/521a4d38-786f-4713-a86f-e84b97c40c3b.jsonl",
+      "bytes": 72282,
+      "sha256": "7203e0dba3d04d26ef70e2054e7174363f0f046bf4ceb8ec09747308324e65f6",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/83462033-5de2-4890-b184-c6c5eaafe73f.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/83462033-5de2-4890-b184-c6c5eaafe73f.jsonl",
+      "bytes": 79436,
+      "sha256": "c7b461ca34e64ff3d5d4bb5d145a9c44a7a00e3e80303f1dcd50a34b3c81f1a8",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/842ab5f3-8df7-47c4-9d0a-014bdf13f093.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/842ab5f3-8df7-47c4-9d0a-014bdf13f093.jsonl",
+      "bytes": 127384,
+      "sha256": "4180f05b08fe6fdd776f9fb3f7785a9d0e0993e47060e5f0b880858005a68521",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/data/traces/898309af-efb4-4726-ae55-4ec7797dc6ec.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/data/traces/898309af-efb4-4726-ae55-4ec7797dc6ec.jsonl",
+      "bytes": 71540,
+      "sha256": "3ff7702114a33596df52c81764622af68aa1514bfbbd08b2fa47dfe68bd194c7",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d02_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d02_1.extraction.json",
+      "bytes": 12389,
+      "sha256": "a71cc0a9a74a75a6c96c51879c7d4bf43d2eea3593eecde7c60bb8b792190c1b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d04_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d04_1.extraction.json",
+      "bytes": 5065,
+      "sha256": "d16ae585dae48e25f85b264bccee9d133fc98485cc864e09e05f632c4f91544e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d05_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d05_1.extraction.json",
+      "bytes": 12397,
+      "sha256": "b7e3b15afe4c10ecef1805ff0d5462806110ef9466f608c1ec369d825162a632",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d09_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d09_1.extraction.json",
+      "bytes": 5008,
+      "sha256": "3e363002f1f767f3bfcb59dbfd1630697c61d0b739fe202dfb6ca892a82ec045",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d11_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d11_1.extraction.json",
+      "bytes": 12387,
+      "sha256": "d1474a51eaa7e8b528a25530001a178d105d4739fd2c5be1608f83f78689c836",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d14_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d14_1.extraction.json",
+      "bytes": 12387,
+      "sha256": "8c2af07c6c8ef0f64874083e4a1c97e5999a0a99bd3e79c12e631f732b805d23",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d17_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d17_1.extraction.json",
+      "bytes": 12438,
+      "sha256": "09f7571694ec0aae155e5b6ccf8f387f79f151d59f9f1e4ed26ef031c6458fc6",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d19_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d19_1.extraction.json",
+      "bytes": 12474,
+      "sha256": "0ae4375c03fcb2c3c4fd21b34f9897e65c68187c03b2573de9a1f9c01da2f11d",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d28_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d28_1.extraction.json",
+      "bytes": 12458,
+      "sha256": "653d05c8bb36b0126d0c751d65fa75c8f7793f38531ad562a50b954da37f72f0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d32_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d32_1.extraction.json",
+      "bytes": 12500,
+      "sha256": "8fc2118307d459ecda04cdd3cda1498819fc8b24408d571bfabf11fd66875338",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d33_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d33_1.extraction.json",
+      "bytes": 4938,
+      "sha256": "c0d9283a02e252a0f085684cd26efa46bad9e83fe86337b8cfca79265c79bbb9",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d33_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d33_2.extraction.json",
+      "bytes": 4945,
+      "sha256": "6d48d042f272a2c8cee437b64e953663f3d6cca7038d84ef08d67a4a26e6cdc1",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d35_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d35_1.extraction.json",
+      "bytes": 13571,
+      "sha256": "0a8b09476d46b83f7b0bfc749c1237a619b8956be3c22010dc5a80569aa2eab8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d38_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d38_1.extraction.json",
+      "bytes": 13555,
+      "sha256": "b61d73c4dd60441e0a40f0838b0125b30709d8feec5441b5ebe993e5b824fe47",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d38_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d38_2.extraction.json",
+      "bytes": 13555,
+      "sha256": "b2fe36efb68f13c79c865cb83732537d66890971864fb69a037b05e0c47bfeae",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d42_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d42_1.extraction.json",
+      "bytes": 4945,
+      "sha256": "6f32a518821a0f054592066055d7ee894caf6dc5e86852f3c1539a40cc1be1ac",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d42_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d42_2.extraction.json",
+      "bytes": 4952,
+      "sha256": "f77e0a6abc28df0ec70c234364898e0637b18914b1bc76ba6d4de10a03fc05ba",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d45_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d45_1.extraction.json",
+      "bytes": 13553,
+      "sha256": "91184c7ccbedf0004b6fd3323434265dfacef9c96ef0d71c879231e7330f6013",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d45_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d45_2.extraction.json",
+      "bytes": 12313,
+      "sha256": "055b7b8eeb443774df2258d206f1d5327bb240ec7d572f0da602238b9b695e1b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d48_1.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d48_1.extraction.json",
+      "bytes": 13555,
+      "sha256": "f8ed2f6ab9d49c38bda65d3ddfe6aec3d0cc616b8bfe37d9f5dd2a57d545417a",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/i6d48_2.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/i6d48_2.extraction.json",
+      "bytes": 13555,
+      "sha256": "5f35431f81966daf17b016adad2a9ee693105ea6bca9cbc0143c4c79d5c5de47",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/measurement-harness.py",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/memory-peaks.json",
+      "bytes": 1411,
+      "sha256": "9866b226e4cccaff766ef8ed987289e685a2c99b6625dd67fdf7f318fca86838",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/memory.jsonl",
+      "bytes": 5923,
+      "sha256": "a64d38e3c9424a010e9ef06b35c2d33865a23fe804e1ac9986faaa01da96acba",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/n17.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/n17.extraction.json",
+      "bytes": 12299,
+      "sha256": "325993a227d7d3c4fc18d2868fda11196b0805bd681501d4493c176328e6cc1c",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/n18.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/n18.extraction.json",
+      "bytes": 12299,
+      "sha256": "9d37dc90e80ae6a57ffbb58f52b82985e00b1c794216cc0d603f77ad949e84a8",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/protocol-frozen.json",
+      "bytes": 53226,
+      "sha256": "9eb35abc6fabfb222a207006a6b07f43c3588787b4d877019cf8e808a2b9589a",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8186,
+      "sha256": "d7d4e70cc8e2ce3ad1d38abdc4be5fe462880b997e0a4b03e64f89e1fb1b8d2b",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/profile.yaml",
+      "bytes": 6795,
+      "sha256": "065d3b29ddfd07aaceeb8031588b2364475d62b6f65cb3df24b0d1fc115c12e4",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/02-candidate-original6/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/02-candidate-original6/service-stop.json",
+      "bytes": 547,
+      "sha256": "c36dce89d0e4e53d3b4ceceb1dca841e06c6fa2db0e53f2506d82c66e49771db",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurement-process.json",
+      "bytes": 126,
+      "sha256": "bf26abd791354d9ba4a9a796650d65a4bb8da5d7c60c51556e17c6b438e2981e",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/I6S01-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/I6S01-baseline-0.attempt-start.json",
+      "bytes": 138,
+      "sha256": "9d8f4a16a92590e8c7cac2f9b0decc38db8f55b32d0fe2f71d83a00bebee2efc",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/I6S01-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/I6S01-baseline-0.json",
+      "bytes": 81024,
+      "sha256": "ce07425d9f0a5ad316eae1d8d6c9583dae27be84a13807e4f3b8b463946c9ee0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/I6S02-baseline-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/I6S02-baseline-0.attempt-start.json",
+      "bytes": 138,
+      "sha256": "4854142a70e0de2b6982b705de48770e5fa2460ae131a13f0513fdfc7bbe0dcd",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/I6S02-baseline-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/I6S02-baseline-0.json",
+      "bytes": 80562,
+      "sha256": "97f71df9e5c8c5601a0c9321f52cbf4f8577512a6e10c130f3a470e1cf38f445",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/bindings.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/bindings.json",
+      "bytes": 543,
+      "sha256": "8254744ec0201bab6764a019889d6db394f270bdcf77837261d2d59ff52d051b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "8cb0682d931435c6561191b714716b6f067cbf53543234629aa5d5e33b9955c5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/data/traces/3258aa2d-7576-4755-8a3d-34b5ca508b62.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/data/traces/3258aa2d-7576-4755-8a3d-34b5ca508b62.jsonl",
+      "bytes": 83829,
+      "sha256": "7c459b4d1b8b845bdcab18f8fa01c43e18bd3d65373203d7a923301434fbca3c",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/data/traces/7aec0b70-1428-416f-ae4e-59d1037ff809.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/data/traces/7aec0b70-1428-416f-ae4e-59d1037ff809.jsonl",
+      "bytes": 83261,
+      "sha256": "fc658c4e6640ee24566e324c7ba06c06dd053ac0f2f56a163276e0111a5fe7e7",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/i6s01.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/i6s01.extraction.json",
+      "bytes": 12305,
+      "sha256": "d22d4b95a2331cf8ac06a93d2597d033fa7773d251337fff348449e4ff61b4c6",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/i6s02.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/i6s02.extraction.json",
+      "bytes": 12305,
+      "sha256": "654c312dc902986fc8f5665ebc9d1efcf9c19be6feb60585b5695d30fbfb04de",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/measurement-harness.py",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/memory-peaks.json",
+      "bytes": 615,
+      "sha256": "90be5259f2518c7105e00ae17edcdeb40dcece5c51e4470c8d2f5a5a43c43f35",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/memory.jsonl",
+      "bytes": 73720,
+      "sha256": "9d130b70746d4dffedfec88b74340ec3eb4d42756e6133cf7b1058bd68c0fd17",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/protocol-frozen.json",
+      "bytes": 17476,
+      "sha256": "5a8c4504ff7d566d542a05aedf489a4cb8b5a6407cc11ed2c3afa124bdb26b8f",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8186,
+      "sha256": "b557784fec9a3a342b0622bc5502c392227649e99fc1e44e8dd261d30be62e7d",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/profile.yaml",
+      "bytes": 6794,
+      "sha256": "f22a23d87543155508f50fc7052261789cba3bc62d5e6cec567e1f7b76588ce3",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/03-baseline-selection2/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/03-baseline-selection2/service-stop.json",
+      "bytes": 547,
+      "sha256": "75f09cf30d45f38a7319d41cb6e8172c2c0901206b3d3bb08470d145bd9e1d85",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurement-process.json",
+      "bytes": 126,
+      "sha256": "17533a726f5a0e0f3b3bbc1d1538e3dee56bee1c62200dfe50041dc94061efde",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/I6S01-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/I6S01-candidate-0.attempt-start.json",
+      "bytes": 139,
+      "sha256": "694c0623bbb3c815502ba08e39e3ea527a2af0bfc287371557f57fd3b8fa231b",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/I6S01-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/I6S01-candidate-0.json",
+      "bytes": 81050,
+      "sha256": "b1108b97a10141031badbd3b61712e2ade20085c66b5235845afebcf5d28f9ca",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/I6S02-candidate-0.attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/I6S02-candidate-0.attempt-start.json",
+      "bytes": 139,
+      "sha256": "8c842dbf8204adc415728c827ac1222975a406c3ea080c53fd57bf642c147bb1",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/I6S02-candidate-0.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/I6S02-candidate-0.json",
+      "bytes": 80795,
+      "sha256": "c23b1da54cba389d03cb8d2474e2f05280920506b253b90d5966fba7ab43bccd",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/bindings.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/bindings.json",
+      "bytes": 543,
+      "sha256": "9f697988522ecb6a3870e02fe3037eeae3beebc09fd8deb424e17cb4f373684f",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "d85f31020e72a4d6e1ce0447ba8a12fd6499892bd3b954c9a2f79a30f2118e49",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/data/traces/2a9ef9ba-8e40-4c96-b129-237ff6a5536c.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/data/traces/2a9ef9ba-8e40-4c96-b129-237ff6a5536c.jsonl",
+      "bytes": 85764,
+      "sha256": "545ed01efbcd89ce6d1a665c114d2607349702bb8ac34a82b5a65980de3ef2d1",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/data/traces/a0f8a82a-cc76-4876-bd1f-1c0b1ec2b5e9.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/data/traces/a0f8a82a-cc76-4876-bd1f-1c0b1ec2b5e9.jsonl",
+      "bytes": 86119,
+      "sha256": "2ca69cdf54df2b9c9fb1e6787ea5658f7d5358803c4e4a1d4602e42e1868e678",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/i6s01.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/i6s01.extraction.json",
+      "bytes": 12305,
+      "sha256": "d85d82ca368cc7e1c5ae9f6973ffdeb637006a2b351b235280b647e2cd137026",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/i6s02.extraction.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/i6s02.extraction.json",
+      "bytes": 12305,
+      "sha256": "9e91d5e1f80a61168a485c2608b6d47e9a686edf661d3b3cead812743ed5082f",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/measurement-harness.py",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/memory-peaks.json",
+      "bytes": 610,
+      "sha256": "fe8028fbaf949dbe3f623ec9f94737327a69c45bcf0e4bde619f69d8b16bca34",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/memory.jsonl",
+      "bytes": 128421,
+      "sha256": "ea1377677553fd6ecf00ee92015261dba830841309244cea3a2373eff1d14d96",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/protocol-frozen.json",
+      "bytes": 17484,
+      "sha256": "107f752546db4aa8906f8ccb43d60a6b3f7f39e9037646f3f41cd918b9da8b36",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8187,
+      "sha256": "329a76a42849d5300fc100cf8e2ffcc49e81fe95da10aca48e60fa1f5fd6f97b",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/profile.yaml",
+      "bytes": 6799,
+      "sha256": "c70cca45968b28c3003394bbac3bbe5154fdd9ff72e9ca4b0a6424da1a2e9f43",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/04-candidate-selection2/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/04-candidate-selection2/service-stop.json",
+      "bytes": 547,
+      "sha256": "f14b2d3049e6d1a48810ea3adad0a1967bbf6523445cde24b07c5f2677e887c6",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/http-final-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/http-final-result.json",
+      "bytes": 1581,
+      "sha256": "19458862501a46d5fd32c6f27d0e1515251822d8b4abb4bfffc0364e8594aa1f",
+      "encoding": "utf-8",
+      "purpose": "unaltered historical HTTP verdict"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurement-process.json",
+      "bytes": 124,
+      "sha256": "759026e6493713f172a0e411e8b8e90c776e5dffafafb498494c541586849670",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/A-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/A-import.json",
+      "bytes": 3703,
+      "sha256": "f9b8a2fee085c93ab21076bfbdc2f902fe1241e5aad629c343d7216f97fd22f2",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/B-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/B-import.json",
+      "bytes": 2855,
+      "sha256": "408d7b005f661472bcd42994b398db838889c9301e255c734d035f1a72a20c97",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/api-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/api-stop.json",
+      "bytes": 163,
+      "sha256": "320f470da527cba2d9be0ec20626d3e2c476634690b597f3ad47d7e22049f9a0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/attempt-start.json",
+      "bytes": 294,
+      "sha256": "a83d7d7879ef6ad96ce607b091233904813e6d86d2cb7dc0e81103e8555d3358",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/bindings-before.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/bindings-before.json",
+      "bytes": 5789,
+      "sha256": "787512a33a0945712c2e755e97ff864309b9e777b5cc6040cbe6cace169a0846",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "8cb0682d931435c6561191b714716b6f067cbf53543234629aa5d5e33b9955c5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/data/traces/65adc04e-3850-4cf8-8f90-47112fb6e5d7.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/data/traces/65adc04e-3850-4cf8-8f90-47112fb6e5d7.jsonl",
+      "bytes": 74382,
+      "sha256": "b4d89e4874e9bf500e6a05a27cd2e8ad3b186ef4173aeff3b7cdf4f618fb03f9",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/measurement-harness.py",
+      "bytes": 26315,
+      "sha256": "bd4a1e53f343f40165e24010a1801c796fbd8930a8ee5ca9bd8b213d70334969",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/memory-peaks.json",
+      "bytes": 781,
+      "sha256": "1054dce212baa58c4262d6f59f40cdaa2b6d8529ab09d17c7623f6621aa1b9a6",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/memory.jsonl",
+      "bytes": 5398,
+      "sha256": "77f9d9e8cef6d7cd321c3a4bd43e85f5c314e7822f20ea4aac07bf037a754ef5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/protocol-frozen.json",
+      "bytes": 13054,
+      "sha256": "2b68248ba5336e0d3571dc5409bd60449a9ead33dfb99b0b7c08b0540db1ee1d",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/public-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/public-sse.jsonl",
+      "bytes": 38447,
+      "sha256": "ec9a05d180f6b531248478ab3c8786156f4543bbcc1ba5cde7e63eb3fd106f73",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/query.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/query.json",
+      "bytes": 169508,
+      "sha256": "4ca29af276ee2f4c4a55b1cbe2f033848c1ba60e472ad50e31364cf7b4dfb3ef",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/replacement-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/replacement-import.json",
+      "bytes": 2854,
+      "sha256": "def2530fdb0cf2aa38ed097053ed1ce766fe0e3bc4672ac38367bf8ee62e5900",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/resume-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/resume-sse.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/transport-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/transport-result.json",
+      "bytes": 1209,
+      "sha256": "972aba552e6fd36141d39822d065319dd31a7fc7e13a2cf23361af010485426e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/measurements/version-persistence.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/measurements/version-persistence.json",
+      "bytes": 18382,
+      "sha256": "61aee566f38c0cb3ce71fd3577d4d47a8cb4bb9b4bf4447bbae5c5ce1b1239fc",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8189,
+      "sha256": "ef55cc38312561e6dc0d74598f2db17c0072058cefd385c75718bf57bc48a15d",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/profile.yaml",
+      "bytes": 6806,
+      "sha256": "57f0efd00ac07629cffa70ea52188f9cbebfd3c7cb7f1b76232239891047a03c",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/05-baseline-http_conflict/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/05-baseline-http_conflict/service-stop.json",
+      "bytes": 547,
+      "sha256": "1c7f3741c3f4b0cc27f2564134bf2467db04f9b134a072ff1046e143ead6fd74",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/http-final-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/http-final-result.json",
+      "bytes": 1581,
+      "sha256": "87a996b47f0b65c8f12c1b2339dabb2120ee0ccdcadfbdbf480d4bcfd43d4abd",
+      "encoding": "utf-8",
+      "purpose": "unaltered historical HTTP verdict"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurement-process.json",
+      "bytes": 124,
+      "sha256": "c768b96b44f619af30cf05494a81cd8ace9bbf0e9204028c7d81bb1b2d664613",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/A-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/A-import.json",
+      "bytes": 3703,
+      "sha256": "29906f43e8616a74745df3a2824d232ac06b206fe3cd9c44e4fb2c1873145eff",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/B-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/B-import.json",
+      "bytes": 2854,
+      "sha256": "f10916508f0ee538482391606a56eaffff1430ecad5a5eb2fd1b79208852efcf",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/api-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/api-stop.json",
+      "bytes": 163,
+      "sha256": "5523821a43fbbc8e4acbab354516b82d901368995d4cfe402b1b5a2fa513e713",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/attempt-start.json",
+      "bytes": 294,
+      "sha256": "5e0d6a030e49d3cb17eff2398e9d051c0f2074f6426e1f69b314c926fb2927b3",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/bindings-before.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/bindings-before.json",
+      "bytes": 5789,
+      "sha256": "b9115803eeff4912d39a61434ac33936ae02e2eda1dfd5b1075843152565dc12",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "d85f31020e72a4d6e1ce0447ba8a12fd6499892bd3b954c9a2f79a30f2118e49",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/data/traces/6f8b6cba-4c20-461b-8448-7bb991d974aa.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/data/traces/6f8b6cba-4c20-461b-8448-7bb991d974aa.jsonl",
+      "bytes": 77286,
+      "sha256": "28bdb597847510b337b3464a8784f1f631435b504c6676d920a5cf893385eaf4",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/measurement-harness.py",
+      "bytes": 26315,
+      "sha256": "bd4a1e53f343f40165e24010a1801c796fbd8930a8ee5ca9bd8b213d70334969",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/memory-peaks.json",
+      "bytes": 778,
+      "sha256": "be9b92db1f62b37b0fc7537d6e1b0f74a5323f7363e509a93332f274d29be5e3",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/memory.jsonl",
+      "bytes": 5339,
+      "sha256": "6d52feadcf9095adf59d465d165a2d6582c08c78718aa149bf09a1195432d69e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/protocol-frozen.json",
+      "bytes": 13062,
+      "sha256": "1fdf255dc0c3b15cff18cdef930befc030fdd8cb8f7b2f768484bbe43a035a34",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/public-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/public-sse.jsonl",
+      "bytes": 38279,
+      "sha256": "d3e2694d3068f7845c7f9c2a27c382ade7c122da1ae5f0d523cd2a9ca067cc72",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/query.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/query.json",
+      "bytes": 169089,
+      "sha256": "1eaef4a5fea25db9ece317b5ba550f383ba8fa69132f97007268d23400754abb",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/replacement-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/replacement-import.json",
+      "bytes": 2855,
+      "sha256": "db290ff3f75fe1e8fa50946b13f024e5025765381d371610ec8c483ae2eacb4a",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/resume-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/resume-sse.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/transport-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/transport-result.json",
+      "bytes": 1209,
+      "sha256": "0471178fac079ec9ec0fd60dd5ed660d49a1cac2a63111d97c66261bd17294dd",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/measurements/version-persistence.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/measurements/version-persistence.json",
+      "bytes": 18382,
+      "sha256": "7902311d4f99e7e5a5da5ccca6ae49dda5f1ea0f4a0502439bef95fde6e3bac1",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8190,
+      "sha256": "a67556b1708b0582be284d8bc6099f646f2ccbd55e26820ae332db8a958e0e16",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/profile.yaml",
+      "bytes": 6811,
+      "sha256": "f00710b9f3f8e201f1599662d8a53634c3006bb265e384483c855bd39672fcf7",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/06-candidate-http_conflict/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/06-candidate-http_conflict/service-stop.json",
+      "bytes": 547,
+      "sha256": "093533e29d458e976ad685296dbc78f6780ab2d1a59eaed3ae33346472205738",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/http-final-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/http-final-result.json",
+      "bytes": 1578,
+      "sha256": "67aa1f91f835f90a2a2e76bcfc398c416ab00f0b45e97ac9e11cc2f88943c42a",
+      "encoding": "utf-8",
+      "purpose": "unaltered historical HTTP verdict"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurement-process.json",
+      "bytes": 124,
+      "sha256": "6622511df6121462692cc47c61207fa532d4aadb66ceda4d0cfe2b9eadef4d7b",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/A-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/A-import.json",
+      "bytes": 3703,
+      "sha256": "89f5050c4ca621450af13462ff6eb8853a4445c46d2ab0aae4198287b9425be5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/B-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/B-import.json",
+      "bytes": 2855,
+      "sha256": "8e1a936f4d6ecd5e8ccf310ddb9e27ddb4f8ec41445cc23a294a5288dce6abd7",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/api-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/api-stop.json",
+      "bytes": 163,
+      "sha256": "320f470da527cba2d9be0ec20626d3e2c476634690b597f3ad47d7e22049f9a0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/attempt-start.json",
+      "bytes": 298,
+      "sha256": "fe5abd608898c88c044a0cce9b19ab071cf04c8ff7d672d1c11e8f62c8eed21e",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/bindings-before.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/bindings-before.json",
+      "bytes": 5815,
+      "sha256": "9adf01f2bd236c97536f31b98aa479cb5837c8a76708b1c64571f1db97956e69",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "8cb0682d931435c6561191b714716b6f067cbf53543234629aa5d5e33b9955c5",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/data/traces/4232f990-84bd-4bd8-b339-03c417aa8791.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/data/traces/4232f990-84bd-4bd8-b339-03c417aa8791.jsonl",
+      "bytes": 121671,
+      "sha256": "a2ee2d82be6a6e18ca34dd9ce05ce4143d7b8fe9b0e6ad616d23c5e01a45ec54",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/measurement-harness.py",
+      "bytes": 26315,
+      "sha256": "bd4a1e53f343f40165e24010a1801c796fbd8930a8ee5ca9bd8b213d70334969",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/memory-peaks.json",
+      "bytes": 781,
+      "sha256": "89335c19bccd957a7a73f4ecaeb8f8aa0ea8b2736a4faa26222c78e3a09244c6",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/memory.jsonl",
+      "bytes": 64890,
+      "sha256": "9defa7091530d67ff6d5a3bdc2781ccd22594ec38bf499ef97f47dd48a4ca203",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/protocol-frozen.json",
+      "bytes": 15924,
+      "sha256": "7691a959416f303a4fb6fb3c96fe8983ba21cd26955374468934586004fa6971",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/public-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/public-sse.jsonl",
+      "bytes": 38591,
+      "sha256": "8e74e1d1da13a38ea41717876b3504d80b18dac51dc679252f9fb17bc1657b11",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/query.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/query.json",
+      "bytes": 176023,
+      "sha256": "a5ee1b9eb9457172d362f22ded32df54373058d9798d62177b1f5a977f89ec74",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/replacement-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/replacement-import.json",
+      "bytes": 2966,
+      "sha256": "449a1b497cef56e1fc37dc3566aad03e12f7d3fc27254635fbc6259898699420",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/resume-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/resume-sse.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/transport-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/transport-result.json",
+      "bytes": 1207,
+      "sha256": "33f723acd76c4963a52e0d19ed4917b73cc28b670585fb4d06062cd7309094c2",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/measurements/version-persistence.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/measurements/version-persistence.json",
+      "bytes": 11815,
+      "sha256": "0c40b79a13d42a2a676c8dedd36a14ccf9176f80b71c02babb4c318953575ad4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8190,
+      "sha256": "c1105a09e40a60173f4e8f31290c5ab1c3543dcbc79a6d88aeefbbca8a57e90b",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/profile.yaml",
+      "bytes": 6810,
+      "sha256": "d83bf22ddb8be36e604ab55ca81596546582b7fb65955ed337aefe6e1f545070",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/07-baseline-http_selection/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/07-baseline-http_selection/service-stop.json",
+      "bytes": 547,
+      "sha256": "648d61cf74c3a8937d6c51bf9ab7eb5b264bc86ffac4b3f9232df833be5853c3",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/http-final-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/http-final-result.json",
+      "bytes": 1578,
+      "sha256": "0e871926fafc22dc452edc7174121265c3ec5993c9c5e6b88b9401b170f3b83b",
+      "encoding": "utf-8",
+      "purpose": "unaltered historical HTTP verdict"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurement-process.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurement-process.json",
+      "bytes": 124,
+      "sha256": "df9fe6b19052cac20d2138b7c2bc3b035f5237d75173fa8d2392bae676f0890e",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/A-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/A-import.json",
+      "bytes": 3702,
+      "sha256": "67694b967ba50a738bc8054a4eaeb37dfb3fcc4db18c8a0b7478adbd49a9c919",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/B-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/B-import.json",
+      "bytes": 2853,
+      "sha256": "733b93bcf571b3713f40745ea81067e7b67a5d66a8568b7fd1ec40790d392ce4",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/api-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/api-stop.json",
+      "bytes": 163,
+      "sha256": "320f470da527cba2d9be0ec20626d3e2c476634690b597f3ad47d7e22049f9a0",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/attempt-start.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/attempt-start.json",
+      "bytes": 298,
+      "sha256": "bf17d645e3f4aad04c0e354ca4a7e0df38d2e5c2391776ca0a1865590c6afb24",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/bindings-before.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/bindings-before.json",
+      "bytes": 5815,
+      "sha256": "5b048eba5875b7ee07f04daa8916a40f07af164d9584e9c48e6be5efe1b4b9a7",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/code-manifest.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/code-manifest.json",
+      "bytes": 9693,
+      "sha256": "d85f31020e72a4d6e1ce0447ba8a12fd6499892bd3b954c9a2f79a30f2118e49",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/data/traces/3ba2ec5f-937f-4dcd-9d54-bf3577afeca0.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/data/traces/3ba2ec5f-937f-4dcd-9d54-bf3577afeca0.jsonl",
+      "bytes": 124182,
+      "sha256": "1765c24be56421c3f7ede7839fe44b544ad80f776f49056e55a896dce2e2424d",
+      "encoding": "utf-8",
+      "purpose": "verified chained synthetic query trace"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/measurement-harness.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/measurement-harness.py",
+      "bytes": 26315,
+      "sha256": "bd4a1e53f343f40165e24010a1801c796fbd8930a8ee5ca9bd8b213d70334969",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/memory-peaks.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/memory-peaks.json",
+      "bytes": 786,
+      "sha256": "4017c67ed4d0363751dc67c7fc3260ad046b1061448342976f762fe23f698a56",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/memory.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/memory.jsonl",
+      "bytes": 62409,
+      "sha256": "ff0cc35aa7c911dd637902e07fb378d1d6d9d5819d2183b506ae67cc9356f3c3",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/protocol-frozen.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/protocol-frozen.json",
+      "bytes": 15932,
+      "sha256": "5c9ed363b8b33245fa9753fabdde5afeb04db23004d5eb97395b6e5165803603",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/public-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/public-sse.jsonl",
+      "bytes": 39174,
+      "sha256": "e0173f135af4629be19b01221d02b17dd881723fa8c4dfdd0f1974f5d13cb185",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/query.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/query.json",
+      "bytes": 177483,
+      "sha256": "f984e4f230619b39609f9bd861720282dd294c977ea509b22cfa5fbe53682d21",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/replacement-import.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/replacement-import.json",
+      "bytes": 2854,
+      "sha256": "cc14c48918c9f6e6009c248e491206fb458fbf75e956524eaeaac175ff87dfdc",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/resume-sse.jsonl",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/resume-sse.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/source-diff.patch",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/source-diff.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/source-stability.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/source-stability.json",
+      "bytes": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/source-status.txt",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/source-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/transport-result.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/transport-result.json",
+      "bytes": 1207,
+      "sha256": "a7c9362d0c92b50ed557bb0ee27b9c415494f5f2abff36a5e77205465809b232",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/measurements/version-persistence.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/measurements/version-persistence.json",
+      "bytes": 11815,
+      "sha256": "80a59c5d03b05ab6432f0aed1a215c620d16462772d96cd56c069b386147d143",
+      "encoding": "utf-8",
+      "purpose": "synthetic query, source binding, trace context, lifecycle or memory evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "bytes": 8191,
+      "sha256": "7083813c814096cabb38c4040d0db455f82d04a423bf4570a1884eab27e6e8b5",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/profile.yaml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/profile.yaml",
+      "bytes": 6815,
+      "sha256": "00d5c666d45b36d95bf424b4eb7e0fcf824dbb3a731804672d1b33bb8184187f",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runs/08-candidate-http_selection/service-stop.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/runs/08-candidate-http_selection/service-stop.json",
+      "bytes": 547,
+      "sha256": "28c27e5891da1aa062285679dd7c98645406f33c1e240ff9f7ba28f23f036e6b",
+      "encoding": "utf-8",
+      "purpose": "execution profile or owned-process/model evidence"
+    },
+    {
+      "path": "native/runtime/artifacts-manifest.json",
+      "original_path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/manifests/artifacts.json",
+      "bytes": 19223,
+      "sha256": "649d283070ca63a9cb93afdec51c19ad686fed700c06bf1c18f3cc5479f07f47",
+      "encoding": "utf-8",
+      "purpose": "provisioned artifact identities, not model data"
+    },
+    {
+      "path": "native/evidence-allowlist.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/native-r4/evidence-allowlist.json",
+      "bytes": 139105,
+      "sha256": "6e120b37612d422ff7c4e6bfd0ebb21baa3c7c0d2500bf79f8629808f6770e22",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "portable-r2-execution.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/portable-r2-execution.json",
+      "bytes": 82271,
+      "sha256": "6dda701d5abac952fd2f5cf4c5dfd2efb0e1290f2cf1a4157541ee34b0aa2e2d",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "portable-r2.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/portable-r2.log",
+      "bytes": 6763,
+      "sha256": "5ea1dabed3518cc2928f9dfd7d97f7aa8bbd07a14688cb89d0f5eb5e9087ee16",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "portable-r2.xml",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/portable-r2.xml",
+      "bytes": 908067,
+      "sha256": "b99406c017d1a31bd4015e8dc8082e9840bfa43d2ba872bdcd71c5cb058dc690",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "run_portable_r2.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/run_portable_r2.py",
+      "bytes": 1230,
+      "sha256": "524f57a632303839dca6583d453406413295eda8daf58fd7eab0f640eaf63be5",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "final-ruff.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/final-ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "final-mypy.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/final-mypy.log",
+      "bytes": 45,
+      "sha256": "aa3f3fffc890fbcbb1d545ae3b1643de0f1d19181264830ef57f9f7f6e5a2ce4",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "final-brief.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/final-brief.log",
+      "bytes": 25,
+      "sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "final-diagrams.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/final-diagrams.log",
+      "bytes": 125,
+      "sha256": "82b1ed63d2192fa5e42f2b9a2eb33e6a468cd4abe9e1ab03e1f2894cfdf5482f",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "code-docs.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/code-docs.json",
+      "bytes": 1711,
+      "sha256": "8257be9ad23c118ba15463d7006b1d74a729d77934cdf761db92ff108dfb1bcf",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "code-docs.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/code-docs.log",
+      "bytes": 1711,
+      "sha256": "8257be9ad23c118ba15463d7006b1d74a729d77934cdf761db92ff108dfb1bcf",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "code-pack.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/code-pack.json",
+      "bytes": 9281,
+      "sha256": "6811969b2166257d1ad166e8f9b75a6d52dc68bad47b70bc27cf2bdf9e804ebb",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "code-pack.log",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/code-pack.log",
+      "bytes": 9022,
+      "sha256": "d5a540f80be9dcaa15ccce63d58fe5f63b4f5a5ec31ca27bb2f17516a7847717",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "code-publication-receipt.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/code-publication-receipt.json",
+      "bytes": 888,
+      "sha256": "944b3a8eeef55e37662af3ab18198a2752ae7ec49490ed40549047d6eb86b512",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "integrated-review.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/integrated-review.json",
+      "bytes": 6831,
+      "sha256": "d6c2c8f994b68d82da9eb57ee640d493cf8e05311b89c41cdcbefa0621fbefc9",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "integrated-review-addendum-522d868.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/integrated-review-addendum-522d868.json",
+      "bytes": 5165,
+      "sha256": "ca4459418712081e954a4225dafe8122d45e8bd87dab1a1d0dd211526cbe3337",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-protocol.md",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-protocol.md",
+      "bytes": 5432,
+      "sha256": "dbcb5f81497243cc68c53e43b98c15fa1ed85b1b6883cd35b0ff37f54a380a83",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/build_fixtures.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/build_fixtures.py",
+      "bytes": 27274,
+      "sha256": "0ddbae6d4e8250309b81e708059bf4d7403b850d35c8c0d53bab2caaf91f0642",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-final48.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-final48.json",
+      "bytes": 165874,
+      "sha256": "6f6210d4ce376bee739fbacd45c0de1e3c3a691aac2ca49386dc28fcc2f58412",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-dev16.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-dev16.json",
+      "bytes": 56807,
+      "sha256": "858c81ef5ce3f841d1e7a57c1898e7675df622f1ffca2c17badca92168761a5c",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-freeze.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-freeze.json",
+      "bytes": 2421,
+      "sha256": "f8f513710c3f4102c4989dcd58dd98d9827aa4083422a34337de3b1f14806a89",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/run_i6r06.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/run_i6r06.py",
+      "bytes": 9541,
+      "sha256": "ed1ddc76931d8059a95957ee5e56dc9db1d05934e211aabc68ab39990bb041ff",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/dev16-baseline-v1.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/dev16-baseline-v1.json",
+      "bytes": 512951,
+      "sha256": "78ce42199aef708a08c0a658ece368e65df89d5cbb28a4fc824637e3fa04f77a",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/dev16-candidate-v1.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/dev16-candidate-v1.json",
+      "bytes": 514933,
+      "sha256": "786d84cb3663df35a4a2b80f223dc9bd0ef75eefdf0a21d1da4e842aa84860f7",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/dev16-candidate-final.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/dev16-candidate-final.json",
+      "bytes": 514037,
+      "sha256": "03f827d1d7b835d8e529b164a041a3712146540cb7298f1d1e36a92df64aad2a",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/final48-baseline-v1.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/final48-baseline-v1.json",
+      "bytes": 1502530,
+      "sha256": "b11e7791d42a32a71cd591c6f43681b8dc9975679a29ae61de6e0d36fb142582",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/final48-candidate-v1.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/final48-candidate-v1.json",
+      "bytes": 1512179,
+      "sha256": "afeeca5a3c0cc87b0497cd65bbab92266346883a53e9e4ef592142124bcd0534",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-final-comparison.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-final-comparison.json",
+      "bytes": 19241,
+      "sha256": "2c130262b31400ed3c249630dda4bb8fa82f29c6b696812b175346b518cf2c1d",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/i6r06-final-results.md",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-final-results.md",
+      "bytes": 6487,
+      "sha256": "eaae210cb89f932133b169c6722a1d93bf765393d1ceeb4fba803e519511a30f",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/native-review-criteria.json",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/native-review-criteria.json",
+      "bytes": 51549,
+      "sha256": "286d9690b6612b928de65ed73bf4cffa1bd08a615582e2017a4cc71f71bea37c",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    },
+    {
+      "path": "independent/build_native_r4_review.py",
+      "original_path": "/workspace/scratch/edbeb2c37c03/qa/independent/build_native_r4_review.py",
+      "bytes": 20909,
+      "sha256": "a40638868f0037acbde506b30b485c26b151abb1a2c9c3e88c1de20dff4e1c4e",
+      "encoding": "utf-8",
+      "purpose": "software or independent evaluation evidence"
+    }
+  ]
+}

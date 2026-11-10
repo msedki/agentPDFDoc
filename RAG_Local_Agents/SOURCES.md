@@ -2166,3 +2166,16 @@ nouvelle dépendance ou contrat public n'est introduit par ce bilan.
 - `services/api/answer_contract.py`, `structured_answer.py`, `query.py`, `execution_trace.py` et leurs tests : contrats exacts des obligations, du rendu et des traces. Aucun contrat externe ni version de dépendance modifié.
 
 Skills lus pour ce lot : `.agents/skills/hybrid-rag-api/SKILL.md`, `RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md`, `.agents/skills/rag-qualification-fixtures/SKILL.md`, `.agents/skills/project-documentation/SKILL.md`. Ces procédures de développement ne sont pas exposées au générateur documentaire.
+
+## I6R-06 — preuves de clôture, 10 novembre 2026 UTC
+
+Le [bilan figé](reports/trust-i6-diagnostics-results-2026-11-10.md) relie la
+référence `0574f4e`, le candidat publié `522d868`, les manifestes logiciels,
+le nouveau final indépendant et les huit blocs natifs R4. Les sorties et
+revues distinguent conformité des relations, fidélité des citations,
+publication effective et exécution du modèle. Les sources primaires déjà
+consultées restent applicables ; aucune dépendance nouvelle n'est introduite.
+
+F05 établit le besoin d'un filtre de propriété cohérent entre obligations
+et relations admises. Il fonde le [protocole I7](reports/trust-i7-property-protocol-2026-11-10.md),
+sans fournir un nouveau score réservé ni modifier les observations I6.
