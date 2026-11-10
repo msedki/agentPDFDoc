@@ -38,6 +38,7 @@ from .deterministic_calculations import (
 )
 from .errors import ApiError
 from .literal_evidence import (
+    PREDICATE_BOUNDARY,
     RESTRICTION,
     explicit_clause_subject,
     explicit_predicate_spans,
@@ -1110,6 +1111,46 @@ def _measure_clause(line, start, end, quantity, clause_scopes=()):
     return low, high, independent_scope
 
 
+def _measure_qualifier_scopes(line):
+    """Locate written quantity descriptors without declaring independence.
+
+    A dominant denial may encompass several measured predicates. Its evidence
+    scope must stay intact, but a voltage does not acquire the role or property
+    of a coordinated current. Only observed delimiters and a quantity with its
+    own compatible measure establish these lexical scopes. They never shorten
+    a quote, condition, subject binding or assertion scope.
+    """
+    spans: list[tuple[int, int]] = []
+    start = 0
+    for boundary in PREDICATE_BOUNDARY.finditer(line):
+        if len(spans) == 31:
+            return []
+        spans.append((start, boundary.start()))
+        start = boundary.end()
+    spans.append((start, len(line)))
+    if len(spans) < 2:
+        return []
+    measured: list[tuple[int, int, str]] = []
+    for low, high in spans:
+        clause = line[low:high]
+        local: list[tuple[int, int, str]] = []
+        head_start = 0
+        for index, match in enumerate(MEASURE.finditer(clause)):
+            if index == 32:
+                return []
+            head = clause[head_start:match.start()]
+            quantities = [name for name, pattern in QUANTITIES.items() if re.search(pattern, folded(head))]
+            unit = UNIT_ALIASES.get(match["unit"], match["unit"])
+            if len(quantities) == 1 and UNITS[unit][0] == quantities[0]:
+                if local:
+                    previous_low, _, previous_quantity = local[-1]
+                    local[-1] = (previous_low, low + head_start, previous_quantity)
+                local.append((low + head_start, high, quantities[0]))
+                head_start = match.end()
+        measured.extend(local)
+    return measured if len({quantity for _, _, quantity in measured}) > 1 else []
+
+
 def _prose_subject_retained(reference, references):
     """Recheck the exact subject dependency when a catalogue is projected."""
     context = reference.get("prose_context") or {}
@@ -1174,6 +1215,7 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                 _independent_quantity_clauses(line[left[0]:left[1]], line[right[0]:right[1]], None)
                 for left, right in zip(clause_scopes[:-1], clause_scopes[1:], strict=True)):
             clause_scopes = []
+        qualifier_scopes = _measure_qualifier_scopes(line) if not clause_scopes else []
         candidates: list[tuple[re.Match[str], list[Decimal], str, str, str | None]] = []
         for pattern in (SYMMETRIC_RANGE, BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE):
             for match in pattern.finditer(line):
@@ -1219,6 +1261,12 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             if clause_scopes:
                 suffix_label = suffix_label.rstrip(" .!?")
             local_label = prefix + " " + suffix_label
+            for low, high, local_quantity in qualifier_scopes:
+                if local_quantity == quantity and low <= match.start() <= match.end() <= high:
+                    qualifier_suffix = re.split(r"[,;]|\b(?:at|when|for|pour|lorsque|a|à)\b",
+                                                line[match.end():high], maxsplit=1, flags=re.IGNORECASE)[0]
+                    local_label = line[low:match.start()] + " " + qualifier_suffix
+                    break
             label = local_label if re.search(QUANTITIES[quantity], folded(local_label)) or _properties(local_label, quantity) else heading or prefix
             role = _role(local_label) or _role(heading)
             if (role == "characterization" and requested_role != role
@@ -2730,7 +2778,97 @@ class AnswerContract:
                 "selected_reference_ids": [reference["id"] for reference in selected]}
 
 
-def assessment_message(assessment: dict[str, Any]) -> str | None:
+_DIAGNOSTIC_QUANTITIES = {
+    "voltage": "tension", "current": "courant", "temperature": "température", "power": "puissance",
+    "frequency": "fréquence", "resistance": "résistance", "pressure": "pression", "time": "durée",
+    "length": "longueur", "capacitance": "capacité",
+}
+_DIAGNOSTIC_PROPERTIES = {
+    ("voltage", "bus"): "tension de bus", ("voltage", "supply"): "tension d'alimentation",
+    ("voltage", "shunt"): "tension de shunt", ("voltage", "common_mode"): "tension de mode commun",
+    ("voltage", "input"): "tension d'entrée", ("voltage", "output"): "tension de sortie",
+    ("current", "quiescent"): "courant de repos", ("current", "input"): "courant d'entrée",
+    ("current", "output"): "courant de sortie", ("current", "leakage"): "courant de fuite",
+    ("temperature", "ambient"): "température ambiante", ("temperature", "junction"): "température de jonction",
+    ("temperature", "storage"): "température de stockage", ("time", "conversion"): "temps de conversion",
+    ("time", "startup"): "temps de démarrage", ("time", "erase"): "temps d'effacement",
+    ("time", "read"): "temps de lecture",
+}
+_DIAGNOSTIC_ROLES = {
+    "nominal": "nominal", "typical": "typique", "operating": "de fonctionnement",
+    "absolute_maximum": "de maximum absolu", "characterization": "de caractérisation",
+    "minimum": "de minimum", "maximum": "de maximum",
+}
+
+
+def _diagnostic_identifier(value: Any) -> str | None:
+    # These are opaque subject/document identifiers, never prose, links or
+    # source text. Unknown forms remain unnamed rather than becoming markup.
+    return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", value) else None
+
+
+def _diagnostic_documents(assessment, references):
+    documents = list(dict.fromkeys(item["document_id"] for item in assessment.get("obligations", [])
+                                   if item.get("document_id") is not None))
+    if len(documents) < 2:
+        return {}
+    names = {}
+    for document in documents:
+        candidates = {reference.get("document_name") for reference in references
+                      if reference.get("document_id") == document and isinstance(reference.get("document_name"), str)}
+        name = next(iter(candidates)) if len(candidates) == 1 else None
+        if (name and len(name) <= 96 and name == name.strip()
+                and all(character.isalnum() or character in " .()-'’+" for character in name)):
+            names[document] = name
+    counts: dict[str, int] = {}
+    for name in names.values():
+        key = unicodedata.normalize("NFKC", name).casefold()
+        counts[key] = counts.get(key, 0) + 1
+    return {document: ("document « " + names[document] + " »" if document in names
+                       and counts[unicodedata.normalize("NFKC", names[document]).casefold()] == 1
+                       else f"document sélectionné n°{index + 1}")
+            for index, document in enumerate(documents)}
+
+
+def _missing_obligation_message(assessment: dict[str, Any], references=()) -> str | None:
+    missing_ids = {item.get("obligation_id") for item in assessment.get("missing", [])
+                   if item.get("requirement") == "requested_property_document" and item.get("obligation_id")}
+    labels = []
+    documents = _diagnostic_documents(assessment, references)
+    for obligation in assessment.get("obligations", []):
+        if obligation.get("covered") is not False or obligation.get("obligation_id") not in missing_ids:
+            continue
+        quantity, property_name = obligation.get("quantity"), obligation.get("property")
+        label = (_DIAGNOSTIC_PROPERTIES.get((quantity, property_name)) if property_name is not None
+                 else _DIAGNOSTIC_QUANTITIES.get(quantity))
+        if label is None:
+            continue  # an unrecognized property is not rewritten as a known one
+        if obligation.get("kind") == "interval":
+            label = "plage de " + label
+        if obligation.get("subject") is not None:
+            subject = _diagnostic_identifier(obligation["subject"])
+            label += " pour " + (subject or "le sujet demandé")
+        qualifiers = []
+        role = _DIAGNOSTIC_ROLES.get(obligation.get("role"))
+        if role:
+            qualifiers.append("rôle " + role)
+        if obligation.get("document_id") in documents:
+            qualifiers.append(documents[obligation["document_id"]])
+        if qualifiers:
+            label += " (" + ", ".join(qualifiers) + ")"
+        if label not in labels:
+            labels.append(label)
+    if not labels:
+        return None
+    # Keep room for the cited passages. Complete obligations remain available
+    # in the answer contract; the notice explicitly declares any omitted detail.
+    message = "Éléments demandés non entièrement établis dans les passages retenus : " + " ; ".join(labels[:4])
+    if len(labels) > 4:
+        message += f" ; {len(labels) - 4} autres éléments non entièrement établis"
+    return message + "."
+
+
+def _assessment_notice(assessment: dict[str, Any]) -> str | None:
     if assessment.get("scope_refusal"):
         return assessment["scope_refusal"]["message"]
     status = assessment["status"]
@@ -2761,7 +2899,8 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
                 return "La condition demandée pour le sujet et la propriété de la question n'est pas établie dans les passages retenus. Les formulations sources, y compris leurs négations, sont conservées."
             return "Le champ demandé n'est pas établi dans les passages retenus. Aucune valeur manquante n'est supposée."
     if status == "conflict":
-        return "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée."
+        return ("Les extraits retenus présentent des valeurs concurrentes. "
+                "Les sources sont restituées séparément ; aucune valeur n'est arbitrée.")
     if status == "ambiguous":
         if any(item["requirement"] == "source_assertion_uncertain" for item in assessment["ambiguous"]):
             return "La source qualifie une donnée d'incertaine ou d'approximative. Cette réserve est conservée ; aucune valeur certaine n'en est déduite."
@@ -2785,7 +2924,7 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
         if any(item["requirement"].startswith("table_note_") for item in assessment["missing"]):
             return "Une note applicable au tableau est absente, ambiguë ou n'a pas pu être entièrement vérifiée. La valeur ne permet pas d'établir une réponse sans cette réserve."
         if any(item["requirement"] == "multiple_properties_not_decomposed" for item in assessment["missing"]):
-            return "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir."
+            return "Les propriétés demandées ne sont pas toutes établies."
         if assessment["kind"] == "calculation":
             if assessment.get("calculation") is not None:
                 return "Le calcul ci-dessous utilise les entrées citées ; la couverture des autres éléments demandés reste partielle."
@@ -2819,3 +2958,12 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
         return ("La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. "
                 "Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.")
     return None
+
+
+def assessment_message(assessment: dict[str, Any], *, references=()) -> str | None:
+    message = _assessment_notice(assessment)
+    if (assessment.get("scope_refusal") or assessment.get("interpretation_limitations")
+            or assessment.get("qualitative_request") or assessment["status"] not in {"partial", "ambiguous", "conflict"}):
+        return message
+    missing = _missing_obligation_message(assessment, references)
+    return " ".join(part for part in (message, missing) if part) or None

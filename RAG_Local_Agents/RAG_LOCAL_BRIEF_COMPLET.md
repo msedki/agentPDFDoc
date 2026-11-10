@@ -902,6 +902,25 @@ Les skills choisis dans [SKILLS.md](SKILLS.md) assistent le développement, sans
 
 ## 12. I3 — preuves jusqu'à la réponse, profil 4B
 
+**Complément I6R-06, 9 novembre 2026, base `0574f4e` et modifications du lot.**
+Les diagnostics numériques ne supposent plus une condition commune lors d'un
+conflit. Les obligations non couvertes nomment la grandeur, la propriété et,
+si nécessaire, le sujet et le document. Les noms de documents proviennent du
+catalogue vérifié et sont bornés ; les identifiants techniques ne sont pas
+affichés. Les qualificatifs lexicaux de propositions mesurées coordonnées
+sont distingués sans réduire la portée d'une négation, d'une condition ou
+de l'extrait source. Les gardes d'applicabilité restent nécessaires.
+
+En trace `full`, après `verify_rendered`, l'événement privé
+`answer.rendered_support_ledger` conserve le registre rendu, le texte exact,
+les empreintes du registre, du catalogue et de la réponse, ainsi que le
+résultat de validation structurelle. Le mode `hashes` ne conserve que les
+empreintes et tailles ; le mode `off` n'écrit pas de trace. Les quotas
+existants restent appliqués : une capture obligatoire impossible bloque la
+publication avant le delta. Aucun contenu de ce registre n'est ajouté aux
+événements SSE publics. Le [protocole du complément](reports/trust-i6-diagnostics-protocol-2026-11-09.md)
+distingue cette traçabilité de la fidélité documentaire et de la qualification.
+
 **Statut :** mécanismes implémentés sur `enhanced_version` ; portée des essais et limites dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) fixe les critères de ce lot, sans remplacer la DoD globale. Cette section décrit le profil `enhanced-4b` ; les prescriptions et observations historiques ci-dessus gardent leur date.
 
 La sélection conserve les passages disjoints d'un parent trop long pour être développé. Après expansion, seule une preuve identique est dédupliquée : document, version, génération, révision, blocs, positions, hashes, texte, contexte de tableau et obligations d'identifiants restent distingués. Les plafonds de fragments et de contexte continuent de s'appliquer. Une génération autorisée `ready_partial` est signalée même si elle ne produit aucun passage retenu ; l'absence de résultat ne prouve pas l'absence d'information dans l'original.
@@ -2042,7 +2061,8 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 publié `26a0eb8`, recette `6394f62` ; 5 397 tests portables PASS, DEV 48/48, p95 contrat 70,88 ms. Native v2 : candidat 18/18 réponses, référence 13/18 + cinq erreurs mémoire ; neuf routes R3 sans modèle. D03/D06 non acquis, suppléments séparés, huit arrêts vérifiés. [Bilan et preuves](reports/trust-i6-native-v2-2026-11-09.md) |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable ; aucune ouverture ni reconstitution de score. Bilan du périmètre exécutable livré avec ses réserves |
-| I6R-06 | Après I6R-04 : diagnostics de conflit/propriétés manquantes et portées des métadonnées ; reproductions et nouveau lot séparé | OUVERT : condition commune non établie dans D45/D48, propriété supply non nommée dans les suppléments, qualificatifs rejetés D28/D32 à diagnostiquer. [Constats figés](reports/trust-i6-native-v2-2026-11-09.md) ; aucune correction attribuée au candidat natif |
+| I6R-06 | Après I6R-04 : diagnostics de conflit/propriétés manquantes et portées des métadonnées ; reproductions et nouveau lot séparé | IMPLÉMENTÉ, contrôles finaux en cours : 80 nouveaux tests, dernière série ciblée 152 PASS ; diagnostics, qualificatifs locaux et trace du registre rendu. [Lot de code](reports/trust-i6-diagnostics-code-2026-11-09.md), [protocole](reports/trust-i6-diagnostics-protocol-2026-11-09.md) ; résultats natifs v2 figés |
+| I6R-07 | Évaluation distincte I6R06-F48, régressions natives appariées et HTTP/SSE, bilan et publication | PRÉPARATION : nouveau final annoté par évaluateur distinct avant exécution, conservé hors arbre ; ne remplace pas le FINAL48 historique perdu. Critères DIAG-01 à DIAG-08 dans le protocole |
 
 **Points vérifiés :** lots de portée, R3 et recette publiés, suite portable,
 DEV48 et coût contractuel conformes ; 44 positions natives/HTTP conservées
@@ -8012,6 +8032,14 @@ toujours et aucune qualification globale n'est attribuée au bilan.
 
 Source : [bilan figé et preuves](reports/trust-i6-native-v2-2026-11-09.md).
 
+## I6R-06 — séparer diagnostic, qualificatif lexical et preuve du rendu
+
+**Date de session :** 9 novembre 2026 UTC. **Statut :** implémenté, validation du complément en cours. **Référence :** `0574f4e` et modifications locales I6R-06.
+
+Les constats natifs v2 restent historiques. Le diagnostic de conflit n'affirme pas de condition commune non établie. Les obligations manquantes sont nommées depuis le contrat, avec des libellés contrôlés et le contexte documentaire utile. La portée lexicale des qualificatifs est distincte de la portée de preuve : une négation dominante continue de rendre la relation inadmissible. Le registre rendu est conservé après validation dans la trace privée, sous les mêmes modes et quotas.
+
+Le nouveau I6R06-F48 est annoté et gelé par un évaluateur distinct ; il ne remplace pas le FINAL48 perdu. Les auteurs n'y accèdent qu'après gel du candidat, sans modification après ouverture. Le modèle, les budgets, la base, les scopes et les citations restent inchangés. Référence du lot : [protocole, critères et limites](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -8057,6 +8085,10 @@ Consigne utilisateur intégrée dans `AGENTS.md` et `PROMPT_IMPLEMENTATION.md` :
 Création de `RECHERCHE_ET_SKILLS.md`, `SKILLS.md`, `CLAUDE.md` et cinq `skills/*/SKILL.md` propres au projet. D11 ajouté à la recette ; registres, plan, architecture, implémentation, qualification et configuration mis en cohérence. Sources officielles consultées pour la spécification et la méthode, avec limites d'accès explicites.
 
 Les nouvelles règles s'appliquent aux agents de développement et ne modifient pas le fonctionnement hors ligne du produit. Les compétences externes ne sont ni installées ni supposées exécutées ; les skills projet restent des fichiers à intégrer et à tester dans le client réel.
+
+## Complément I6R-06 — diagnostics et preuves du rendu, 9 novembre 2026
+
+Base `0574f4e` ; diagnostics de conflit sans condition supposée, propriétés manquantes nommées, qualificatifs locaux des mesures coordonnées et registre rendu privé après validation. Implémentation en validation ; aucun résultat natif ni final anticipé. [Protocole et critères](reports/trust-i6-diagnostics-protocol-2026-11-09.md).
 
 ---
 
@@ -10219,6 +10251,17 @@ Ces preuves concernent le présent hôte Linux et des documents synthétiques ;
 elles ne remplacent ni FINAL48, ni corpus métier, ni recette physique de 16 Go.
 Les références primaires des lots précédents restent applicables ; aucune
 nouvelle dépendance ou contrat public n'est introduit par ce bilan.
+
+## I6R-06 — sources du complément de diagnostic
+
+**Consultation :** 9 novembre 2026 UTC. **Référence produit :** `0574f4e` et modifications locales I6R-06.
+
+- [ConjNLI, publication primaire ACL](https://aclanthology.org/2020.emnlp-main.661/) : contre-exemples de coordination, négation et portée ; utilisé pour justifier la séparation entre descripteur local et assertion globale. Aucune performance du papier n'est transférée au produit.
+- [FActScore, publication primaire ACL](https://aclanthology.org/2023.emnlp-main.741/) : contrôle atomique des faits, distinct de la complétude. Le nouvel oracle local reste borné et n'est pas l'évaluateur sémantique de cette publication.
+- [Bilan natif v2](reports/trust-i6-native-v2-2026-11-09.md) : preuve des deux diagnostics, des six explicitations et des deux métadonnées à corriger, sans requalification rétroactive.
+- `services/api/answer_contract.py`, `structured_answer.py`, `query.py`, `execution_trace.py` et leurs tests : contrats exacts des obligations, du rendu et des traces. Aucun contrat externe ni version de dépendance modifié.
+
+Skills lus pour ce lot : `.agents/skills/hybrid-rag-api/SKILL.md`, `RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md`, `.agents/skills/rag-qualification-fixtures/SKILL.md`, `.agents/skills/project-documentation/SKILL.md`. Ces procédures de développement ne sont pas exposées au générateur documentaire.
 
 ---
 

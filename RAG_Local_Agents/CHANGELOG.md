@@ -39,3 +39,7 @@ Consigne utilisateur intégrée dans `AGENTS.md` et `PROMPT_IMPLEMENTATION.md` :
 Création de `RECHERCHE_ET_SKILLS.md`, `SKILLS.md`, `CLAUDE.md` et cinq `skills/*/SKILL.md` propres au projet. D11 ajouté à la recette ; registres, plan, architecture, implémentation, qualification et configuration mis en cohérence. Sources officielles consultées pour la spécification et la méthode, avec limites d'accès explicites.
 
 Les nouvelles règles s'appliquent aux agents de développement et ne modifient pas le fonctionnement hors ligne du produit. Les compétences externes ne sont ni installées ni supposées exécutées ; les skills projet restent des fichiers à intégrer et à tester dans le client réel.
+
+## Complément I6R-06 — diagnostics et preuves du rendu, 9 novembre 2026
+
+Base `0574f4e` ; diagnostics de conflit sans condition supposée, propriétés manquantes nommées, qualificatifs locaux des mesures coordonnées et registre rendu privé après validation. Implémentation en validation ; aucun résultat natif ni final anticipé. [Protocole et critères](reports/trust-i6-diagnostics-protocol-2026-11-09.md).

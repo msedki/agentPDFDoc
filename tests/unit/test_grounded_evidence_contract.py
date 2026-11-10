@@ -260,7 +260,10 @@ def test_cross_document_numeric_discrepancy_does_not_invent_entity_identity_or_p
     conflict = result["answer_contract"]["conflicts"][0]
     assert conflict["requirement"] == "same_label_cross_document_value_discrepancy"
     assert conflict["entity_identity_established"] is False and conflict["precedence_inferred"] is False
-    assert "valeurs différentes" in result["text"]
+    assert "valeurs concurrentes" in result["text"]
+    assert "aucune valeur n'est arbitrée" in result["text"]
+    assert all(reference["text"] in result["text"] for reference in refs)
+    assert {span["source_id"] for span in result["citation_spans"]} == {"S001", "S002"}
 
 
 @pytest.mark.parametrize("second", [

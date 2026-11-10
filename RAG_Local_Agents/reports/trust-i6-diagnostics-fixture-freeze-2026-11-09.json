@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "protocol_id": "I6R06-independent-v1",
+  "frozen_utc": "2026-11-09T23:47:21.991435+00:00",
+  "base_revision": "0574f4e21ccaf95b25a48c6e226369376681ac18",
+  "final_candidate_executed": false,
+  "final_baseline_executed": false,
+  "files": {
+    "i6r06-final48.json": {
+      "path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-final48.json",
+      "sha256": "6f6210d4ce376bee739fbacd45c0de1e3c3a691aac2ca49386dc28fcc2f58412",
+      "bytes": 165874
+    },
+    "i6r06-dev16.json": {
+      "path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-dev16.json",
+      "sha256": "858c81ef5ce3f841d1e7a57c1898e7675df622f1ffca2c17badca92168761a5c",
+      "bytes": 56807
+    },
+    "run_i6r06.py": {
+      "path": "/workspace/scratch/edbeb2c37c03/qa/independent/run_i6r06.py",
+      "sha256": "ed1ddc76931d8059a95957ee5e56dc9db1d05934e211aabc68ab39990bb041ff",
+      "bytes": 9541
+    },
+    "build_fixtures.py": {
+      "path": "/workspace/scratch/edbeb2c37c03/qa/independent/build_fixtures.py",
+      "sha256": "0ddbae6d4e8250309b81e708059bf4d7403b850d35c8c0d53bab2caaf91f0642",
+      "bytes": 27274
+    },
+    "i6r06-protocol.md": {
+      "path": "/workspace/scratch/edbeb2c37c03/qa/independent/i6r06-protocol.md",
+      "sha256": "dbcb5f81497243cc68c53e43b98c15fa1ed85b1b6883cd35b0ff37f54a380a83",
+      "bytes": 5432
+    }
+  },
+  "repository_helpers": {
+    "tools/qualification/relations_benchmark.py": {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/relations_benchmark.py",
+      "sha256": "582dd38ddb970114122d3246ae19f200ff705bc4e3d003e6a7c9accf9018275c",
+      "bytes": 33647
+    },
+    "tools/qualification/support_benchmark.py": {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/tools/qualification/support_benchmark.py",
+      "sha256": "0f9ea042729a57349a65cbad7aa0d8d1c0ef9d355cf60bf9ce52b176686102e5",
+      "bytes": 18762
+    }
+  },
+  "counts": {
+    "final": {
+      "cases": 48,
+      "positive": 24,
+      "negative": 24,
+      "fr": 24,
+      "en": 24,
+      "groups": 12
+    },
+    "development": {
+      "cases": 16,
+      "positive": 8,
+      "negative": 8,
+      "fr": 8,
+      "en": 8,
+      "groups": 4
+    }
+  },
+  "preexecution_checks": {
+    "schemas": "PASS",
+    "source_text_and_document_family_disjoint": "PASS",
+    "syntax": "PASS",
+    "oracle_discriminants": 4,
+    "product_modules_imported": false
+  }
+}

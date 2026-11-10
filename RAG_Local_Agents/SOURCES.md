@@ -2155,3 +2155,14 @@ Ces preuves concernent le présent hôte Linux et des documents synthétiques ;
 elles ne remplacent ni FINAL48, ni corpus métier, ni recette physique de 16 Go.
 Les références primaires des lots précédents restent applicables ; aucune
 nouvelle dépendance ou contrat public n'est introduit par ce bilan.
+
+## I6R-06 — sources du complément de diagnostic
+
+**Consultation :** 9 novembre 2026 UTC. **Référence produit :** `0574f4e` et modifications locales I6R-06.
+
+- [ConjNLI, publication primaire ACL](https://aclanthology.org/2020.emnlp-main.661/) : contre-exemples de coordination, négation et portée ; utilisé pour justifier la séparation entre descripteur local et assertion globale. Aucune performance du papier n'est transférée au produit.
+- [FActScore, publication primaire ACL](https://aclanthology.org/2023.emnlp-main.741/) : contrôle atomique des faits, distinct de la complétude. Le nouvel oracle local reste borné et n'est pas l'évaluateur sémantique de cette publication.
+- [Bilan natif v2](reports/trust-i6-native-v2-2026-11-09.md) : preuve des deux diagnostics, des six explicitations et des deux métadonnées à corriger, sans requalification rétroactive.
+- `services/api/answer_contract.py`, `structured_answer.py`, `query.py`, `execution_trace.py` et leurs tests : contrats exacts des obligations, du rendu et des traces. Aucun contrat externe ni version de dépendance modifié.
+
+Skills lus pour ce lot : `.agents/skills/hybrid-rag-api/SKILL.md`, `RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md`, `.agents/skills/rag-qualification-fixtures/SKILL.md`, `.agents/skills/project-documentation/SKILL.md`. Ces procédures de développement ne sont pas exposées au générateur documentaire.

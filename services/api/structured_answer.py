@@ -610,7 +610,7 @@ class Catalogue:
                 notice = ("retrieval_unassessed" if assessment["kind"] == "general" and assessment["status"] == "unassessed"
                           else "retrieval_coverage_incomplete")
                 append_text(RENDER_NOTICES[notice], "notice", notice=notice)
-            message = assessment_message(assessment)
+            message = assessment_message(assessment, references=self.references)
             if message:
                 append_text(message, "notice", notice="assessment")
             for part in parts:
@@ -684,7 +684,7 @@ class Catalogue:
         if plan.normalization:
             warnings.append({"code": "answer_contract_plan_normalized", "operations": plan.normalization,
                              "message": "Les références autorisées ont été préservées et les doublons retirés du plan."})
-        message = assessment_message(assessment)
+        message = assessment_message(assessment, references=self.references)
         if message:
             warnings.append({"code": "answer_contract_" + assessment["status"], "message": message,
                              "verification": assessment["verification"], "missing": assessment["missing"]})
@@ -854,7 +854,7 @@ class Catalogue:
                                      or (notice == "retrieval_unassessed") != (checked["kind"] == "general" and checked["status"] == "unassessed"))
                                 or notice == "empty" and displayed):
                             raise ValueError("unsupported notice")
-                        expected = assessment_message(assessment) if notice == "assessment" else RENDER_NOTICES[notice]
+                        expected = assessment_message(assessment, references=self.references) if notice == "assessment" else RENDER_NOTICES[notice]
                     else:
                         raise ValueError("unknown support kind")
                     pending_citations = list(sources)

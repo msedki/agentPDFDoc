@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "base_commit": "0574f4e21ccaf95b25a48c6e226369376681ac18",
+  "archive": "trust-i6-diagnostics-code-evidence-2026-11-09.json.gz",
+  "archive_sha256": "afb7f68ef004b6c7daf29314daabf6520129c7b1eb5653d637e68ee192d10098",
+  "files": [
+    {
+      "path": "qualifiers/before.json",
+      "bytes": 11296,
+      "sha256": "c7ce34258cb500474a7fa450dec3ee60dc17f3013c4362b192b74ebdf0456cac"
+    },
+    {
+      "path": "qualifiers/first.log",
+      "bytes": 958,
+      "sha256": "8fd1fb394f69f55d68b0b029f97a02f7d2a54d3b51472e35d0ec716536812338"
+    },
+    {
+      "path": "qualifiers/targeted.log",
+      "bytes": 260,
+      "sha256": "aca9d0e7cea9a11a9e684fdcc8ed2afad89d8368431dd4ff9851c2f9850f7325"
+    },
+    {
+      "path": "qualifiers/targeted.xml",
+      "bytes": 37605,
+      "sha256": "0f5248d7bb4fdde5081d7b7909e53646a00fda780d1c2ee3befc9bd60cc66d8f"
+    },
+    {
+      "path": "diag/baseline-reproductions.json",
+      "bytes": 13043,
+      "sha256": "9b6ab38d975ec154951ce55eef4714e3210dbcf24387565b42ff78708ff0b7a7"
+    },
+    {
+      "path": "diag/baseline-tests.log",
+      "bytes": 15400,
+      "sha256": "b74bb482196c08f61289100bfc8225f7e0dbed9d9d5879e1e2d4a99bc4db0db2"
+    },
+    {
+      "path": "diag/rendering-final-tests.log",
+      "bytes": 180,
+      "sha256": "5d94a7cd163ccf5e988cefeca46c472a4580f4049bd23c285c045e8a5b87bc29"
+    },
+    {
+      "path": "targeted-final.log",
+      "bytes": 179,
+      "sha256": "569e8f99cf0b40874b0da7adcffb58f88d556b7ffffbc88fe29600712bd271e1"
+    },
+    {
+      "path": "targeted-final.xml",
+      "bytes": 13417,
+      "sha256": "a0639630294ef01737ceb6fcd1bbe34afa356c6e2c2472b46bfa5cc73e48e2e5"
+    },
+    {
+      "path": "targeted-r2.log",
+      "bytes": 260,
+      "sha256": "b98118a688aab6b866f03aa46305f4268b3d1dab51f8d6cf076a76d3d489ba8a"
+    },
+    {
+      "path": "targeted-r2.xml",
+      "bytes": 29390,
+      "sha256": "7bcd63186ca9a8d431b0e340cc99151a1b783d469d4a9f9a7b045c845ffcb724"
+    },
+    {
+      "path": "trace-neighbors.xml",
+      "bytes": 15012,
+      "sha256": "2a5204a465eb48926696388c959eea188a975d253bf964c93340cad5e29abeb2"
+    },
+    {
+      "path": "portable.log",
+      "bytes": 8195,
+      "sha256": "2030cfb3742a7b264b899d3c70721bf12c20aa9be883cb1650a58d621f06bc34"
+    },
+    {
+      "path": "portable.xml",
+      "bytes": 893748,
+      "sha256": "e4479f41f826069b1bd7d7a0dd066720e16921801b2730f611248fbe824b853c"
+    },
+    {
+      "path": "portable-source-start.json",
+      "bytes": 10568,
+      "sha256": "db13c0a894ef1b9ee970bbf300b1b817c08788f3a3e123f48abfdb95061fd89a"
+    },
+    {
+      "path": "ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "mypy.log",
+      "bytes": 45,
+      "sha256": "aa3f3fffc890fbcbb1d545ae3b1643de0f1d19181264830ef57f9f7f6e5a2ce4"
+    },
+    {
+      "path": "integrated-review.json",
+      "bytes": 6831,
+      "sha256": "d6c2c8f994b68d82da9eb57ee640d493cf8e05311b89c41cdcbefa0621fbefc9"
+    },
+    {
+      "path": "independent/dev16-baseline-v1.json",
+      "bytes": 512951,
+      "sha256": "78ce42199aef708a08c0a658ece368e65df89d5cbb28a4fc824637e3fa04f77a"
+    },
+    {
+      "path": "independent/dev16-candidate-v1.json",
+      "bytes": 514933,
+      "sha256": "786d84cb3663df35a4a2b80f223dc9bd0ef75eefdf0a21d1da4e842aa84860f7"
+    }
+  ],
+  "code_sha256": {
+    "services/api/answer_contract.py": "a51660f4953c3fbb12794b7bbcf9a1e83ba263bcc7bc30b3a1baedb4ad96f607",
+    "services/api/query.py": "23eee91f3f508bf6e6e201354c52867489b7af0bdf172260c410e7220f2722f0",
+    "services/api/structured_answer.py": "633662b6291f7fddcd11471d845786f8ec93b679d44da1a283d96cfe9b5ca397"
+  },
+  "software": {
+    "initial_unit_suite": {
+      "passed": 5390,
+      "failed": 1,
+      "skipped": 22,
+      "deselected": 2,
+      "failure": "old diagnostic wording assertion; updated with explicit preservation and non-arbitration checks"
+    },
+    "last_targeted_passed": 152,
+    "new_tests": 80,
+    "portable_final": "IN_PROGRESS",
+    "native": "NOT_RUN",
+    "heldout": "NOT_OPENED"
+  },
+  "review_scope": "Reviewer authored diagnostics; independent review of qualifier parser and rendered trace only; temperature named before current residual fixed after initial review."
+}

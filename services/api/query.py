@@ -627,6 +627,19 @@ class QueryService:
                                 support_validation = catalogue.verify_rendered(rendered)
                                 record_event("answer.support_validation", support_validation)
                                 metrics["answer_support_validation"] = support_validation
+                                if support_validation.get("status") != "passed":
+                                    raise ApiError("structured_answer_support_invalid", "La restitution ne correspond pas intégralement à ses preuves vérifiées.", 503)
+                                # Private capture follows the successful structural check.
+                                # It binds the displayed segments to the exact final text;
+                                # the catalogue ledger alone cannot reconstruct them.
+                                record_event("answer.rendered_support_ledger", {
+                                    "catalogue_sha256": metrics["structured_answer"]["catalogue_sha256"],
+                                    "ledger": rendered["support_ledger"],
+                                    "sha256": rendered["support_ledger_sha256"],
+                                    "text": rendered["text"],
+                                    "answer_sha256": support_validation["answer_sha256"],
+                                    "validation": support_validation,
+                                })
                                 publication_control = rendered.get("answer_contract", {}).get("publication_control")
                                 if publication_control is not None:
                                     # The controller is produced and revalidated by

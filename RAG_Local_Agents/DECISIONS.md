@@ -2743,3 +2743,11 @@ consignés pour un nouveau lot. Les budgets ne changent pas, le FINAL48 manque
 toujours et aucune qualification globale n'est attribuée au bilan.
 
 Source : [bilan figé et preuves](reports/trust-i6-native-v2-2026-11-09.md).
+
+## I6R-06 — séparer diagnostic, qualificatif lexical et preuve du rendu
+
+**Date de session :** 9 novembre 2026 UTC. **Statut :** implémenté, validation du complément en cours. **Référence :** `0574f4e` et modifications locales I6R-06.
+
+Les constats natifs v2 restent historiques. Le diagnostic de conflit n'affirme pas de condition commune non établie. Les obligations manquantes sont nommées depuis le contrat, avec des libellés contrôlés et le contexte documentaire utile. La portée lexicale des qualificatifs est distincte de la portée de preuve : une négation dominante continue de rendre la relation inadmissible. Le registre rendu est conservé après validation dans la trace privée, sous les mêmes modes et quotas.
+
+Le nouveau I6R06-F48 est annoté et gelé par un évaluateur distinct ; il ne remplace pas le FINAL48 perdu. Les auteurs n'y accèdent qu'après gel du candidat, sans modification après ouverture. Le modèle, les budgets, la base, les scopes et les citations restent inchangés. Référence du lot : [protocole, critères et limites](reports/trust-i6-diagnostics-protocol-2026-11-09.md).

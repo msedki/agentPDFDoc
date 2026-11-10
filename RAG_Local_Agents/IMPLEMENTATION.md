@@ -266,6 +266,25 @@ Les skills choisis dans [SKILLS.md](SKILLS.md) assistent le développement, sans
 
 ## 12. I3 — preuves jusqu'à la réponse, profil 4B
 
+**Complément I6R-06, 9 novembre 2026, base `0574f4e` et modifications du lot.**
+Les diagnostics numériques ne supposent plus une condition commune lors d'un
+conflit. Les obligations non couvertes nomment la grandeur, la propriété et,
+si nécessaire, le sujet et le document. Les noms de documents proviennent du
+catalogue vérifié et sont bornés ; les identifiants techniques ne sont pas
+affichés. Les qualificatifs lexicaux de propositions mesurées coordonnées
+sont distingués sans réduire la portée d'une négation, d'une condition ou
+de l'extrait source. Les gardes d'applicabilité restent nécessaires.
+
+En trace `full`, après `verify_rendered`, l'événement privé
+`answer.rendered_support_ledger` conserve le registre rendu, le texte exact,
+les empreintes du registre, du catalogue et de la réponse, ainsi que le
+résultat de validation structurelle. Le mode `hashes` ne conserve que les
+empreintes et tailles ; le mode `off` n'écrit pas de trace. Les quotas
+existants restent appliqués : une capture obligatoire impossible bloque la
+publication avant le delta. Aucun contenu de ce registre n'est ajouté aux
+événements SSE publics. Le [protocole du complément](reports/trust-i6-diagnostics-protocol-2026-11-09.md)
+distingue cette traçabilité de la fidélité documentaire et de la qualification.
+
 **Statut :** mécanismes implémentés sur `enhanced_version` ; portée des essais et limites dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) fixe les critères de ce lot, sans remplacer la DoD globale. Cette section décrit le profil `enhanced-4b` ; les prescriptions et observations historiques ci-dessus gardent leur date.
 
 La sélection conserve les passages disjoints d'un parent trop long pour être développé. Après expansion, seule une preuve identique est dédupliquée : document, version, génération, révision, blocs, positions, hashes, texte, contexte de tableau et obligations d'identifiants restent distingués. Les plafonds de fragments et de contexte continuent de s'appliquer. Une génération autorisée `ready_partial` est signalée même si elle ne produit aucun passage retenu ; l'absence de résultat ne prouve pas l'absence d'information dans l'original.
